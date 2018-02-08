@@ -1,3 +1,10 @@
+## General
+
+# exclude word2vec matrices
+/data/wiki.*.vec
+
+## R specific 
+
 # History files
 .Rhistory
 .Rapp.history
