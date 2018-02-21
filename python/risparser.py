@@ -42,6 +42,8 @@ if __name__ == '__main__':
     articles = pd.DataFrame(articles)
 
     if output_pf.endswith('.csv'):
+        articles['authors'] = articles['authors'].str.join('; ')
+        articles['keywords'] = articles['keywords'].str.join(' ')
         articles.to_csv(output_pf.replace('.txt', '.csv'), index=False)
     elif output_pf.endswith('.json'):
         articles.to_json(output_pf.replace('.txt', '.json'))
