@@ -1,29 +1,28 @@
-# mergeDataFiles
-#author: Kees van Eijden
-#version/date:  0.2/20-feb-2018
-#mergeDataFiles is especially written to create a train dataset for Systematic Reviews from the list of articles
-#selected by Rens Schoot for his PTSD study
-#The first file (schoot-lgmm-ptsd-initial.csv) contains articles downloaded from Scopus after a search;
-#the second file (schoot-lgmm-ptsd-included-1) contains articles selected from the first file after title screening.
-#the result us a train data set with all the articles form the initial file but with an extra attribute included_ats.
-#If the value is 1 the article was selected after title screening, 0 if not
-#There is also a third file (schoot-lgmm-ptsd-included-2) with the final selection of articles. The same proces is repeated
-#resulting in a attribute included_final with value 1 if in the final selection and 0 if not.
-#Run this program as a script RScript mergeDataFiles.R > merge.out. The file merge.out gives a description of the 
-#merging and cleaning steps taken. The scripts leaves also several .csv files behind in the data directory. Thesw files contain articles 
-#removed from the training set, because they don't have abstracts or titles, or they are duplicates.
-#Last but not least, the file ./data/example_dataset_1/csv/schoot-lgmm-ptsd-traindata.csv contains the merged and cleaned train data.
+# Merge data files
+# author: Kees van Eijden
+# Create a train dataset for Systematic Reviews from the list of articles
+# selected by Rens van de Schoot for his LGMM PTSD study
+# The first file (schoot-lgmm-ptsd-initial.csv) contains articles downloaded from Scopus after a search;
+# the second file (schoot-lgmm-ptsd-included-1) contains articles selected from the first file after title screening.
+# the result us a train data set with all the articles form the initial file but with an extra attribute included_ats.
+# If the value is 1 the article was selected after title screening, 0 if not
+# There is also a third file (schoot-lgmm-ptsd-included-2) with the final selection of articles. The same proces is repeated
+#  resulting in a attribute included_final with value 1 if in the final selection and 0 if not.
+# Run this program as a script RScript mergeDataFiles.R > merge.out. The file merge.out gives a description of the
+#  merging and cleaning steps taken. The scripts leaves also several .csv files behind in the data directory. Thesw files contain articles
+#  removed from the training set, because they don't have abstracts or titles, or they are duplicates.
+# Last but not least, the file ./data/example_dataset_1/csv/schoot-lgmm-ptsd-traindata.csv contains the merged and cleaned train data.
 
-options(echo=FALSE)
 
-library(dplyr)
+library(tidyverse)
+library(tm)
+
 
 cat("mergeDataFiles: Reading Initial Search data (IS, is), Included After Title Screening (ATS, ats) and Final Included (FINAL, fin).\n")
 is_raw <- read.csv(file = "./data/example_dataset_1/csv/schoot-lgmm-ptsd-initial.csv",
                 header= TRUE, sep= ",", stringsAsFactors = FALSE)
 is <- select(is_raw, abstract, title, id) #for now only abstract, title and id (EndNote ID) are relevant
 is$title <- tolower(is$title)
-
 
 
 ats <- read.csv(file = "./data/example_dataset_1/csv/schoot-lgmm-ptsd-included-1.csv",
@@ -126,11 +125,11 @@ if ((dup= nrow(dup_articles)) > 0) {
     cat("...#duplicate articles (title&abstract): ", dup, "..written to file and duplicates deleted.\n")
     dup_articles1 <- semi_join(train_data, dup_articles, by=c("abstract", "title"))
     write.csv(dup_articles1, "./data/example_dataset_1/csv/schoot-lgmm-ptsd-duplicateArticles.csv")
-    
+
     #keep only one occurence of article; the one with lowest endnote id
     train_data <- left_join(train_data, dup_articles, by= c("abstract", "title"))
-    
-    train_data <- train_data %>% filter((id.x == id.y) | (is.na(id.y))) %>% 
+
+    train_data <- train_data %>% filter((id.x == id.y) | (is.na(id.y))) %>%
                     select(id=id.x, abstract, title, included_ats, included_final)
 }
 
@@ -142,16 +141,18 @@ t <- table(train_data$included_final)
 cat("...articles included 2 (final):                ", t[2], "\n")
 cat("\n\n")
 
+train_data <- train_data %>% mutate(title = stringr::str_trim(title))
+
 #titles with multiple occurences
 dup_titles <- train_data %>% group_by(title) %>% summarize(n= n(), id= min(id)) %>% filter(n > 1)
 if ((dup= nrow(dup_titles)) > 0) {
     cat("...#duplicate titles: ", dup, "..written to file\n")
     dup_titles1 <- semi_join(train_data, dup_titles, by=c("title"))
     write.csv(dup_titles1, "./data/example_dataset_1/csv/schoot-lgmm-ptsd-duplicateTitles.csv")
-    
+
     #keep only one occurence of title; the one with lowest endnote ID
     train_data <- left_join(train_data, dup_titles, by= c("title"))
-    train_data <- train_data %>% filter((id.x == id.y) | (is.na(id.y))) %>% 
+    train_data <- train_data %>% filter((id.x == id.y) | (is.na(id.y))) %>%
                     select(id=id.x, abstract, title, included_ats, included_final)
 }
 t <- table(train_data$included_ats)
@@ -165,23 +166,44 @@ cat("\n\n")
 #abstracts with multiple occurences
 dup_abstracts <- train_data %>% group_by(abstract) %>% summarize(n= n(), id= min(id)) %>% filter(n > 1)
 if ((dup= nrow(dup_abstracts)) > 0) {
-    
+
     cat("...#duplicate abstracts: ", dup, "..written to file\n")
     dup_abstracts1 <- semi_join(train_data, dup_abstracts, by=c("abstract"))
     write.csv(dup_abstracts1, "./data/example_dataset_1/csv/schoot-lgmm-ptsd-dupAbstracts.csv")
-    
+
     #keep only one occurence of abstract; the one with lowest endnote id
     train_data <- left_join(train_data, dup_abstracts, by= c("abstract"))
-    train_data <- train_data %>% filter((id.x == id.y) | (is.na(id.y))) %>% 
+    train_data <- train_data %>% filter((id.x == id.y) | (is.na(id.y))) %>%
                     select(id= id.x, abstract, title, included_ats, included_final)
 }
 
+
+# Clean text data
+
+clean_corpus <- function(corpus){
+  corpus <- tm_map(corpus, content_transformer(tolower))
+  corpus <- tm_map(corpus, removePunctuation, ucp = TRUE)
+  corpus <- tm_map(corpus, removeWords, stopwords("en"))
+  corpus <- tm_map(corpus, removeNumbers)
+  corpus <- tm_map(corpus, stripWhitespace)
+  return(corpus)
+}
+
+text <- with(train_data, paste(title, abstract)) # Concatenate title and abstract
+text <- tolower(text)
+text <- gsub("(©|copyright|rights reserved|psycinfo database).+", "", text) # Remove copyright notices at the end
+text <- gsub("[=]", "", text) # Remove copyright notices
+
+text_corpus <- tm::VCorpus(tm::VectorSource(text))
+text_corpus_clean <- clean_corpus(text_corpus)
+
+train_data$text <- sapply(text_corpus_clean, `[[`, 1) %>% stringr::str_trim()
 
 #write out the train data
 
 cat("...write cleaned train data to file\n")
 
-join_data <- select(train_data, id, included_ats, included_final)
+join_data <- select(train_data, id, included_ats, included_final, text)
 output <- inner_join(is_raw, join_data, by=c("id"))
 write.csv(output, "./data/example_dataset_1/csv/schoot-lgmm-ptsd-traindata.csv", row.names = FALSE)
 
