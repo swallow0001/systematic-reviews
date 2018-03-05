@@ -2,7 +2,6 @@
 # https://keras.rstudio.com/articles/examples/imdb_lstm.html
 #
 # Author: Kees van Eijden
-rm(list=ls())
 set.seed(20180301)
 
 library(keras)
