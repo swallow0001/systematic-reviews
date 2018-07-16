@@ -1,5 +1,12 @@
 # systematic-reviews
 
+Questions and remarks
+
+- Is incremental fitting a good approach? Burr Settles is not clear on this one. 
+- Active learning in sparse situations. Always labeling 0 is the best approach. 
+  How are weights added to the model. How are these computed? From the posterior?
+- 
+
 
 Committing guidelines:
 
