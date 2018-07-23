@@ -1,7 +1,9 @@
 import os
 import requests
 
-GLOVE_File_Name = os.path.join("word2vec","wiki.en.vec")
+GLOVE_DIR = "word2vec"
+os.mkdir( GLOVE_DIR)
+GLOVE_File_Name = os.path.join(GLOVE_DIR,"wiki.en.vec")
 URL = "https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.en.vec"
 
 response = requests.get(URL, stream=True)
