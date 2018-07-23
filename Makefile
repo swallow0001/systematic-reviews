@@ -1,12 +1,13 @@
 DATA=$(PWD)/data
-DATARIS=$(DATA)/example_dataset_1/ris
-DATACSV=$(DATA)/example_dataset_1/csv
+DATARIS=$(DATA)/ptsd_review/ris
+DATACSV=$(DATA)/ptsd_review/csv
+WORD2VEC=$(PWD)/word2vec
 
 build : $(DATACSV)/schoot-lgmm-ptsd-initial.csv \
         $(DATACSV)/schoot-lgmm-ptsd-included-1.csv \
         $(DATACSV)/schoot-lgmm-ptsd-included-2.csv
 
-download : $(DATA)/wiki.en.vec
+download : $(WORD2VEC)/wiki.en.vec
 
 $(DATA)/wiki.en.vec : 
 	curl https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.en.vec -o $(DATA)/wiki.en.vec
