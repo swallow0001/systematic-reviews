@@ -9,8 +9,8 @@ build : $(DATACSV)/schoot-lgmm-ptsd-initial.csv \
 
 download : $(WORD2VEC)/wiki.en.vec
 
-$(DATA)/wiki.en.vec : 
-	curl https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.en.vec -o $(DATA)/wiki.en.vec
+$(WORD2VEC)/wiki.en.vec : 
+	curl https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.en.vec -o $(WORD2VEC)/wiki.en.vec
 
 $(DATACSV)/schoot-lgmm-ptsd-initial.csv : $(DATARIS)/schoot-lgmm-ptsd-initial.ris
 	python python/risparser.py $(DATARIS)/schoot-lgmm-ptsd-initial.ris $(DATACSV)/schoot-lgmm-ptsd-initial.csv
