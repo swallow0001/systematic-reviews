@@ -1,8 +1,12 @@
 
+from os import path
+
 import pandas as pd
+import numpy as np
 
 
-def load_ptsd_data(fp="../data/example_dataset_1/csv/schoot-lgmm-ptsd-traindata.csv"):
+word2vec_filePath =path.join("word2vec", "wiki.en.vec")
+def load_ptsd_data(fp=path.join("data", "ptsd_review", "csv", "schoot-lgmm-ptsd-traindata.csv")):
     """Load ptsd papers and their labels.
 
     The number of records is 5077. The following labels are included after the
@@ -20,3 +24,24 @@ def load_ptsd_data(fp="../data/example_dataset_1/csv/schoot-lgmm-ptsd-traindata.
     labels = df["included_final"]
 
     return texts.values, labels.values
+
+
+# def load_word2vec_data(fp =path.join("word2vec", "wiki.en.vec"),embedding_dim=300):
+#         """Load word2vec data. fp =path.join("word2vec", "wiki.en.vec")
+#         """
+#         # Build index mapping words in the embeddings set
+#         # to their embedding vector
+#         
+#         print('Indexing word vectors.')
+#         embeddings_index = {}
+#         
+#         with open(fp, encoding='utf8') as f:
+#             for line in f:
+#                 
+#                 values = line.split()
+#                 split_on_i = len(values) - embedding_dim
+#                 word = ' '.join(values[0:split_on_i])
+#                 coefs = np.asarray(values[split_on_i:], dtype='float32')
+#                 embeddings_index[word] = coefs
+#         print('Found %s word vectors.' % len(embeddings_index))
+#         return embeddings_index
