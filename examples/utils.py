@@ -6,11 +6,12 @@ import numpy as np
 
 word2vec_filePath = path.join("word2vec", "wiki.en.vec")
 
-PTSD_PATH = path.join("data", "ptsd_review", "csv",
+DATA_PATH = "data"
+PTSD_PATH = path.join(DATA_PATH, "ptsd_review", "csv",
                       "schoot-lgmm-ptsd-traindata.csv")
 
 
-def load_ptsd_data(fp=PTSD_PATH):
+def load_ptsd_data():
     """Load ptsd papers and their labels.
 
     The number of records is 5077. The following labels are included after the
@@ -28,6 +29,7 @@ def load_ptsd_data(fp=PTSD_PATH):
     labels = df["included_final"]
 
     return texts.values, labels.values
+
 
 
 # def load_word2vec_data(fp =path.join("word2vec", "wiki.en.vec"),embedding_dim=300):
