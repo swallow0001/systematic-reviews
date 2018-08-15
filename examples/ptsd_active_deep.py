@@ -112,7 +112,7 @@ def main(args):
     acc_pool = []
     maxlen = 100
     
-    if args.dataset = 'ptsd':
+    if args.dataset == 'ptsd':
         texts, labels = load_ptsd_data()
     else: 
         texts, labels = load_drug_data(args.dataset)
