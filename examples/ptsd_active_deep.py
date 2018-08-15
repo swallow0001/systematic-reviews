@@ -37,13 +37,16 @@ from libact.query_strategies import UncertaintySampling, RandomSampling
 from libact.labelers import InteractiveLabeler, IdealLabeler
 
 # demo utils
-from utils import load_ptsd_data
+from utils import load_ptsd_data, load_drug_data
 from utils import word2vec_filePath
 from labeler import InteractivePaperLabeler
 
 
 # parse arguments if available
 parser = argparse.ArgumentParser(description='Active learning parameters')
+
+parser.add_argument(
+    "--dataset", type=str, default='ptsd', help="The dataset to use for training.")
 
 # the number of iterations
 parser.add_argument(
@@ -108,10 +111,14 @@ def main(args):
 
     acc_pool = []
     maxlen = 100
-        
+    
+    if args.dataset = 'ptsd':
+        texts, labels = load_ptsd_data()
+    else: 
+        texts, labels = load_drug_data(args.dataset)
+
     # get the texts and their corresponding labels
     textManager = TextManager()
-    texts, labels = load_ptsd_data()
     data, labels,word_index = textManager.sequence_maker(texts,labels)
     max_num_words = textManager.max_num_words
     max_sequence_length = textManager.max_sequence_length
