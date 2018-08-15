@@ -4,9 +4,13 @@ from os import path
 import pandas as pd
 import numpy as np
 
+word2vec_filePath = path.join("word2vec", "wiki.en.vec")
 
-word2vec_filePath =path.join("word2vec", "wiki.en.vec")
-def load_ptsd_data(fp=path.join("data", "ptsd_review", "csv", "schoot-lgmm-ptsd-traindata.csv")):
+PTSD_PATH = path.join("data", "ptsd_review", "csv",
+                      "schoot-lgmm-ptsd-traindata.csv")
+
+
+def load_ptsd_data(fp=PTSD_PATH):
     """Load ptsd papers and their labels.
 
     The number of records is 5077. The following labels are included after the
@@ -31,13 +35,13 @@ def load_ptsd_data(fp=path.join("data", "ptsd_review", "csv", "schoot-lgmm-ptsd-
 #         """
 #         # Build index mapping words in the embeddings set
 #         # to their embedding vector
-#         
+#
 #         print('Indexing word vectors.')
 #         embeddings_index = {}
-#         
+#
 #         with open(fp, encoding='utf8') as f:
 #             for line in f:
-#                 
+#
 #                 values = line.split()
 #                 split_on_i = len(values) - embedding_dim
 #                 word = ' '.join(values[0:split_on_i])
