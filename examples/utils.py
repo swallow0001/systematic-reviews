@@ -1,5 +1,5 @@
 
-from os import path
+from os import path, listdir
 
 import pandas as pd
 import numpy as np
@@ -9,6 +9,7 @@ word2vec_filePath = path.join("word2vec", "wiki.en.vec")
 DATA_PATH = "data"
 PTSD_PATH = path.join(DATA_PATH, "ptsd_review", "csv",
                       "schoot-lgmm-ptsd-traindata.csv")
+DRUG_DIR = path.join(DATA_PATH, "drug_class_review")
 
 
 def load_ptsd_data():
@@ -22,7 +23,7 @@ def load_ptsd_data():
     """
 
     # read the data of the file location given as argument to this function
-    df = pd.read_csv(fp)
+    df = pd.read_csv(PTSD_PATH)
 
     # make texts and labels
     texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
@@ -31,6 +32,39 @@ def load_ptsd_data():
     return texts.values, labels.values
 
 
+def load_drug_data(name):
+    """Load drug datasets and their labels.
+
+    params
+    ------
+    name: str
+        The name of the dataset (should match with file name)
+    """
+
+    print("load drug dataset: {}".format(name))
+
+    # create file path based on the argument name.
+    fp = path.join(DRUG_DIR, name + ".csv")
+
+    try:
+        df = pd.read_csv(fp)
+    except FileNotFoundError:
+        raise ValueError("Dataset with name {} doesn't exist".format(name))
+
+    # make texts and labels
+    texts = (df['title'].fillna('') + ' ' + df['abstracts'].fillna(''))
+    labels = (df["label2"] == "I").astype(int)
+
+    print("number of positive labels: {}".format(labels.sum()))
+    print("relative number of positive labels: {}".format(labels.sum()/labels.shape[0]))
+
+    return texts.values, labels.values
+
+
+def list_drug_datasets():
+    """Get a list of all available drug datasets."""
+
+    return [dataset[:-4] for dataset in listdir(DRUG_DIR)]
 
 # def load_word2vec_data(fp =path.join("word2vec", "wiki.en.vec"),embedding_dim=300):
 #         """Load word2vec data. fp =path.join("word2vec", "wiki.en.vec")
