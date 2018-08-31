@@ -33,7 +33,7 @@ from libact.query_strategies import UncertaintySampling, RandomSampling
 from libact.labelers import InteractiveLabeler, IdealLabeler
 
 # demo utils
-from utils import load_ptsd_data
+from python.utils import load_ptsd_data
 from labeler import InteractivePaperLabeler
 
 

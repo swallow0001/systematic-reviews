@@ -18,7 +18,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 
 # demo utils
-from utils import load_ptsd_data
+from python.utils import load_ptsd_data
 
 
 def run_model():

@@ -37,8 +37,7 @@ from libact.query_strategies import UncertaintySampling, RandomSampling
 from libact.labelers import InteractiveLabeler, IdealLabeler
 
 # demo utils
-from utils import load_ptsd_data, load_drug_data
-from utils import word2vec_filePath
+from python.utils import load_ptsd_data, load_drug_data, word2vec_filepath
 from labeler import InteractivePaperLabeler
 
 
@@ -124,7 +123,7 @@ def main(args):
     max_sequence_length = textmanager.max_sequence_length
 
     embedding = Embedding_Layer(word_index,max_num_words,max_sequence_length)
-    embedding.load_word2vec_data(word2vec_filePath)
+    embedding.load_word2vec_data(word2vec_filepath)
     embedding_layer = embedding.build_embedding()
 
         

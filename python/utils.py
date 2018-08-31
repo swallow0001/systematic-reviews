@@ -4,7 +4,7 @@ from os import path, listdir
 import pandas as pd
 import numpy as np
 
-word2vec_filePath = path.join("word2vec", "wiki.en.vec")
+word2vec_filepath = path.join("word2vec", "wiki.en.vec")
 
 DATA_PATH = "data"
 PTSD_PATH = path.join(DATA_PATH, "ptsd_review", "csv",
