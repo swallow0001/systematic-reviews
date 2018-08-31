@@ -18,7 +18,7 @@ import argparse
 import numpy as np
 
 from utils import *
-from model.textManager import TextManager
+from model.textmanager import TextManager
 from model.embedding import Embedding_Layer
 from model.lstm import LSTM_Model
 import pickle
@@ -50,10 +50,10 @@ if sr_args.dataset == 'ptsd':
 else: 
     texts, labels = load_drug_data(sr_args.dataset)
 
-textManager = TextManager()
-data, labels,word_index = textManager.sequence_maker(texts,labels)
-max_num_words = textManager.max_num_words
-max_sequence_length = textManager.max_sequence_length
+textmanager = TextManager()
+data, labels,word_index = textmanager.sequence_maker(texts,labels)
+max_num_words = textmanager.max_num_words
+max_sequence_length = textmanager.max_sequence_length
 
 #Split dataset to train and test
 x_train, x_val, y_train, y_val = split_data(data, labels,sr_args.training_size, sr_args.init_included_papers, 2017+sr_args.T)

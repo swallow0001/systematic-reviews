@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, recall_score
 
-from model.textManager import TextManager
+from model.textmanager import TextManager
 from model.embedding import Embedding_Layer
 from model.lstm import LSTM_Model
 
@@ -118,10 +118,10 @@ def main(args):
         texts, labels = load_drug_data(args.dataset)
 
     # get the texts and their corresponding labels
-    textManager = TextManager()
-    data, labels,word_index = textManager.sequence_maker(texts,labels)
-    max_num_words = textManager.max_num_words
-    max_sequence_length = textManager.max_sequence_length
+    textmanager = TextManager()
+    data, labels,word_index = textmanager.sequence_maker(texts,labels)
+    max_num_words = textmanager.max_num_words
+    max_sequence_length = textmanager.max_sequence_length
 
     embedding = Embedding_Layer(word_index,max_num_words,max_sequence_length)
     embedding.load_word2vec_data(word2vec_filePath)
