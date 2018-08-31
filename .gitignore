@@ -1,9 +1,11 @@
 ## General
 
-word2vec/
 logs/
 backup/
 
+# exclude pretrained model
+# download these models
+data/pretrained_models/*
 
 .ipython/
 .jupyter/
