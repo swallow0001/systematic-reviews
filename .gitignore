@@ -6,6 +6,9 @@ backup/
 # exclude pretrained model
 # download these models
 data/pretrained_models/*
+!data/pretrained_models/.gitkeep
+data/pretrained_models/word2vec/*
+!data/pretrained_models/word2vec/.gitkeep
 
 .ipython/
 .jupyter/
