@@ -24,7 +24,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.join('python'))
 
 from models.textmanager import TextManager
-from models.embedding import Embedding_Layer
+from models.embedding import Word2VecEmbedding
 from models.lstm import LSTM_Model
 from utils import load_ptsd_data, load_drug_data, load_pickle, dump_pickle, split_data
 from config import GLOVE_DIR, TEMP_DATA_DIR
@@ -91,7 +91,7 @@ else:
 
     # make an embedding layer
     fp_wiki_w2v = os.path.join(GLOVE_DIR, "wiki.en.vec")
-    embedding = Embedding_Layer(word_index, max_num_words, max_sequence_length)
+    embedding = Word2VecEmbedding(word_index, max_num_words, max_sequence_length)
     embedding.load_word2vec_data(fp_wiki_w2v)
     embedding_layer = embedding.build_embedding()
     dump_pickle(embedding_layer, pickle_file_path)
