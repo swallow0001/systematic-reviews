@@ -21,7 +21,7 @@ import json
 from datetime import datetime
 
 # project dependencies
-sys.path.insert(0, os.path.join('python'))
+sys.path.insert(0, 'python')  # path to the module.
 
 from models.textmanager import TextManager
 from models.embedding import Word2VecEmbedding

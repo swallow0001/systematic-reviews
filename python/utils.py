@@ -1,12 +1,15 @@
 
 # Cpython dependencies
 import os
+import sys
 import pickle
 
 # external dependencies
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+
+sys.path.insert(0, 'python')
 
 # project dependencies
 from config import DATA_DIR, PTSD_PATH, DRUG_DIR

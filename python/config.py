@@ -5,7 +5,7 @@ import os
 ##### GLOBAL VARIABLES
 
 # project root
-ROOT_DIR = ".."
+ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
 
 ##### FOLDER STRUCTURE
 
