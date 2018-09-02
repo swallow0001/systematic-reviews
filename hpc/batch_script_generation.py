@@ -20,10 +20,13 @@ from utils import *
 def make_bash_file(n_processes=24, n_batch=0):
     """Generic function to create batch files for HPC cluster."""
     parameters = read_parameters()
-    
+
     # recusive if len(parameters > 24)
     if len(parameters) > n_processes:
-        make_bash_file(parameters[n_processes:], n_processes=n_processes, n_batch=n_batch + 1)
+        make_bash_file(
+            parameters[n_processes:],
+            n_processes=n_processes,
+            n_batch=n_batch + 1)
         parameters = parameters[:n_processes]
 
     # generate script content
@@ -35,7 +38,7 @@ def make_bash_file(n_processes=24, n_batch=0):
     bash_command += "date\n"
 
     for i, parm in enumerate(parameters):
-        
+
         i_job = int(i + n_batch * n_processes)
         bash_command += "python ./python/sr_lstm.py " \
             "-T {} -training_size {} -allowed_FN {} -init_included_papers {} -dataset {}  &\n".format(i_job, parm[0], parm[1], parm[2], parm[3])
@@ -56,26 +59,28 @@ if __name__ == '__main__':
 
     # hyperparameter: grid search
     sampling_size = 10
-    
-    training_size= list(range(50,501,50)) 
-    allowed_FN = list(range(0,10))
-    init_included_papers=[10]
-    dataset=['ptsd']
-   
-    hyperparameters = list(product(training_size, allowed_FN, init_included_papers, dataset))
 
-    training_size= list(range(50,501,50)) 
-    allowed_FN = list(range(0,2))
-    init_included_papers=[10,15,20]
-    dataset=['ptsd']
+    training_size = list(range(50, 501, 50))
+    allowed_FN = list(range(0, 10))
+    init_included_papers = [10]
+    dataset = ['ptsd']
 
-    hyperparameters += list(product(training_size, allowed_FN, init_included_papers, dataset))
-        
+    hyperparameters = list(
+        product(training_size, allowed_FN, init_included_papers, dataset))
+
+    training_size = list(range(50, 501, 50))
+    allowed_FN = list(range(0, 2))
+    init_included_papers = [10, 15, 20]
+    dataset = ['ptsd']
+
+    hyperparameters += list(
+        product(training_size, allowed_FN, init_included_papers, dataset))
+
     ##remove duplicated combinations
     hyperparameters = list(set(hyperparameters)) * sampling_size
 
-    names =['training_size','allowed_FN','init_included_papers','dataset']
-    save_parameters(names,hyperparameters)
+    names = ['training_size', 'allowed_FN', 'init_included_papers', 'dataset']
+    save_parameters(names, hyperparameters)
 
     # parse the arguments
     parser = argparse.ArgumentParser(description='sr options')
