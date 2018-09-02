@@ -15,4 +15,5 @@ Committing guidelines:
   * Don't commit huge datafiles (>20MB)
   * Communicate on issue tracker and close issues from commits
   * No spaces in filenames please
+  * Python scripts in PEP8 and YAPF formatted
  
