@@ -1,9 +1,10 @@
 """keras embedding layer
 """
 import numpy as np
+from keras.layers import Embedding
 
 
-class Embedding():
+class Word2VecEmbedding():
     """
     """
 
@@ -14,6 +15,7 @@ class Embedding():
         self._word_index = word_index
         self._max_num_words = max_num_words
         self._max_sequence_length = max_sequence_length
+        self._num_words = min(self._max_num_words, len(self._word_index) + 1)
 
     def load_word2vec_data(self, filePath):
         """Load word2vec data. fp =path.join("word2vec", "wiki.en.vec")
@@ -37,8 +39,8 @@ class Embedding():
 
     def _make_embedding_matrix(self):
 
-        num_words = min(self._max_num_words, len(self._word_index) + 1)
-        self._embedding_matrix = np.zeros((num_words, self.embedding_dim))
+        self._embedding_matrix = np.zeros((self._num_words,
+                                           self.embedding_dim))
 
         for word, i in self._word_index.items():
             if i >= self._max_num_words:
@@ -53,18 +55,16 @@ class Embedding():
 
         print('Shape of embedding matrix: ', self._embedding_matrix.shape)
 
-        def build_embedding():
-            """
-
+    def build_embedding(self):
+        """
             load pre-trained word embeddings into an Embedding layer
-            note that we set trainable = False so as to keep the
-            embeddings fixed
+            note that we set trainable = False so as to keep the embeddings fixed
 
             """
-            self._make_embedding_matrix()
-            return Embedding(
-                num_words,
-                self.embedding_dim,
-                weights=[self._embedding_matrix],
-                input_length=self._max_sequence_length,
-                trainable=False)
+        self._make_embedding_matrix()
+        return Embedding(
+            self._num_words,
+            self.embedding_dim,
+            weights=[self._embedding_matrix],
+            input_length=self._max_sequence_length,
+            trainable=False)
