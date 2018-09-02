@@ -36,8 +36,8 @@ for fp in glob.glob(os.path.join('output', 'sr_lstm*.json')):
     df = pd.DataFrame(json_data)
     df_results = df_results.append(df)
 
-df_result['recall'] = df_result['tp'] / (df_result['tp'] + df_result['fn'])
-df_result['fp_rate'] = df_result['fp'] / (df_result['fp'] + df_result['fn'])
+df_results['recall'] = df_results['tp'] / (df_results['tp'] + df_results['fn'])
+df_results['fp_rate'] = df_results['fp'] / (df_results['fp'] + df_results['fn'])
 
 selected_col_names = [
     'T', 'allowed_FN', 'init_included_papers', 'dataset', 'fp_rate', 'recall'
