@@ -2,6 +2,7 @@
 
 logs/
 backup/
+output/
 
 # exclude pretrained model
 # download these models
