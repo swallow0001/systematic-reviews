@@ -26,5 +26,7 @@ DRUG_DIR = os.path.join(DATASETS_DIR, "drug_class_review")
 # glove dir
 GLOVE_DIR = os.path.join(DATA_DIR, "pretrained_models", "word2vec")
 
+TEMP_DATA_DIR = os.path.join(ROOT_DIR, "data_temp")
+
 ##### FILE LOCATIONS
 PTSD_PATH = os.path.join(PTSD_DIR, "schoot-lgmm-ptsd-traindata.csv")
