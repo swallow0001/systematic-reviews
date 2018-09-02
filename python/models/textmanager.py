@@ -7,8 +7,10 @@ from keras.utils import to_categorical
 class TextManager():
     """Text Manager"""
 
-    max_num_words = 20000
-    max_sequence_length = 100
+    def __init__(self, max_num_words=20000, max_sequence_length=1000):
+
+        self.max_num_words = max_num_words
+        self.max_sequence_length = max_sequence_length
 
     def _tokenizer(self, texts, labels):
         # vectorize the text samples into a 2D integer tensor
