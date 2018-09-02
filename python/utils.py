@@ -1,17 +1,21 @@
-from sklearn.model_selection import train_test_split
-from os import path, listdir
 
-import pandas as pd
-import numpy as np
+# Cpython dependencies
+import os
 import pickle
 
-DATA_PATH = path.join("..", "data")
-PTSD_PATH = path.join(DATA_PATH, "ptsd_review", "csv",
-                      "schoot-lgmm-ptsd-traindata.csv")
-DRUG_DIR = path.join(DATA_PATH, "drug_class_review")
-WORD2VEC_PATH = path.join("..", "word2vec", "wiki.en.vec")
-PICKLE_PATH = path.join(DATA_PATH, "pickle")
-PARAMETER_PATH = path.join(DATA_PATH, "parameters.txt")
+# external dependencies
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+# project dependencies
+from config import DATA_DIR, PTSD_PATH, DRUG_DIR
+
+# Global variables
+word2vec_filepath = os.path.join("word2vec", "wiki.en.vec")
+
+
+PARAMETER_PATH = os.path.join(DATA_DIR, "parameters.txt")
 
 
 def load_ptsd_data():
@@ -24,7 +28,6 @@ def load_ptsd_data():
 
     """
 
-    print('PTSD_PATH:', PTSD_PATH)
     # read the data of the file location given as argument to this function
     df = pd.read_csv(PTSD_PATH)
 
@@ -47,7 +50,7 @@ def load_drug_data(name):
     print("load drug dataset: {}".format(name))
 
     # create file path based on the argument name.
-    fp = path.join(DRUG_DIR, name + ".csv")
+    fp = os.path.join(DRUG_DIR, name + ".csv")
 
     try:
         df = pd.read_csv(fp)
@@ -68,8 +71,28 @@ def load_drug_data(name):
 def list_drug_datasets():
     """Get a list of all available drug datasets."""
 
-    return [dataset[:-4] for dataset in listdir(DRUG_DIR)]
+    return [dataset[:-4] for dataset in os.listdir(DRUG_DIR)]
 
+
+# def load_word2vec_data(fp =os.path.join("word2vec", "wiki.en.vec"),embedding_dim=300):
+#         """Load word2vec data. fp =os.path.join("word2vec", "wiki.en.vec")
+#         """
+#         # Build index mapping words in the embeddings set
+#         # to their embedding vector
+#
+#         print('Indexing word vectors.')
+#         embeddings_index = {}
+#
+#         with open(fp, encoding='utf8') as f:
+#             for line in f:
+#
+#                 values = line.split()
+#                 split_on_i = len(values) - embedding_dim
+#                 word = ' '.join(values[0:split_on_i])
+#                 coefs = np.asarray(values[split_on_i:], dtype='float32')
+#                 embeddings_index[word] = coefs
+#         print('Found %s word vectors.' % len(embeddings_index))
+#         return embeddings_index
 
 def split_data(data, labels, train_size, init_positives, seed):
     """split dataset to train and test datasets
