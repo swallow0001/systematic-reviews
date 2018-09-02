@@ -9,13 +9,14 @@
 
 import os
 import re
+import json
 import glob
 import warnings
 
 from sklearn import metrics
 import numpy as np
 import pandas as pd
-import json
+
 import matplotlib
 
 matplotlib.use('Agg')
