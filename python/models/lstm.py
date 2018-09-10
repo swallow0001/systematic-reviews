@@ -21,6 +21,7 @@ class LSTM_Model():
     def train(self, *args, **kwargs):
         self._train_model(*args, **kwargs)
 
+
     def score(self, testing_dataset, *args, **kwargs):
         label = np.array(args[0])
         allowed_FN = args[1]
@@ -70,7 +71,7 @@ class LSTM_Model():
         x_val = np.array(args[2])
         y_val = np.array(args[3])
 
-        weights = [1 / y_val[:, 0].mean(), 1 / y_val[:, 1].mean()]
+        weights = [1 / y_train[:, 0].mean(), 1 / y_train[:, 1].mean()]
 
         self._model.fit(
             x_train,

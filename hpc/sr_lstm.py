@@ -101,7 +101,7 @@ else:
 # make a lstm model
 deep_model = LSTM_Model
 args_model = {
-    'backwards': False,
+    'backwards': True,
     'dropout': 0.3,
     'optimizer': 'rmsprop',
     'max_sequence_length': max_sequence_length,

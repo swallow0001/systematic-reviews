@@ -15,7 +15,7 @@ sys.path.insert(0, 'python')
 from config import DATA_DIR, PTSD_PATH, DRUG_DIR
 
 # Global variables
-word2vec_filepath = os.path.join("word2vec", "wiki.en.vec")
+# word2vec_filePath = os.path.join("word2vec", "wiki.en.vec")
 
 
 PARAMETER_PATH = os.path.join(DATA_DIR, "parameters.txt")
@@ -104,6 +104,21 @@ def split_data(data, labels, train_size, init_positives, seed):
         print('invalid train size')
         return
 
+    # select init_positive cases from the entire dataset
+    if init_positives > 0:
+        ##index of all included papers in the entire dataset
+        positive_indx = np.where(labels[:, 1] == 1)[0]
+
+        np.random.seed(seed)
+        to_add_indx = np.random.choice(positive_indx, init_positives, replace=False)
+
+        y_train_init = labels[to_add_indx]
+        x_train_init = data[to_add_indx]
+
+        data = np.delete(data, to_add_indx, 0)
+        labels = np.delete(labels, to_add_indx, 0)
+
+    train_size = train_size - init_positives
     validation_split = 1 - (train_size / len(data))
 
     x_train, x_val, y_train, y_val = train_test_split(
@@ -111,30 +126,11 @@ def split_data(data, labels, train_size, init_positives, seed):
         labels,
         test_size=validation_split,
         random_state=seed,
-        stratify=labels)
+        stratify=labels
+    )
 
-    # add added_positives positive paper to training dataset
-    if init_positives > 0:
-        # number of included papers in train dataset
-        incl = len(np.where(y_train[:, 1] == 1)[0])
-
-        # number of included papers should be added to train dataset
-        to_add = init_positives - incl
-
-        # index of all included papers in test dataset
-        positive_indx = np.where(y_val[:, 1] == 1)[0]
-
-        if (to_add > 0) and (len(positive_indx) >= to_add):
-
-            np.random.seed(seed)
-            to_add_indx = np.random.choice(
-                positive_indx, to_add, replace=False)
-
-            y_train = np.vstack((y_train, y_val[to_add_indx]))
-            x_train = np.vstack((x_train, x_val[to_add_indx]))
-
-            x_val = np.delete(x_val, to_add_indx, 0)
-            y_val = np.delete(y_val, to_add_indx, 0)
+    x_train = np.vstack((x_train, x_train_init))
+    y_train = np.vstack((y_train, y_train_init))
 
     return (x_train, x_val, y_train, y_val)
 
