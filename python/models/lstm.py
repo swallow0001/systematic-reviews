@@ -71,7 +71,8 @@ class LSTM_Model():
         x_val = np.array(args[2])
         y_val = np.array(args[3])
 
-        weights = [1 / y_train[:, 0].mean(), 1 / y_train[:, 1].mean()]
+        # weights = [1 / y_train[:, 0].mean(), 1 / y_train[:, 1].mean()]
+        weights = {0: 1 / y_train[:, 0].mean(), 1: 1 / y_train[:, 1].mean()}
 
         self._model.fit(
             x_train,

@@ -46,6 +46,8 @@ parser.add_argument(
     help='Initial number of included papers')
 parser.add_argument(
     "-dataset", default='ptsd', type=str, help='Name of dataset')
+parser.add_argument(
+    "-dropout", default=0, type=float, help='dropout')
 sr_args = parser.parse_args()
 print(sr_args)
 
@@ -102,7 +104,7 @@ else:
 deep_model = LSTM_Model
 args_model = {
     'backwards': True,
-    'dropout': 0.3,
+    'dropout': sr_args.dropout,
     'optimizer': 'rmsprop',
     'max_sequence_length': max_sequence_length,
     'embedding_layer': embedding_layer
