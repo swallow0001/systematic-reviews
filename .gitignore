@@ -3,6 +3,7 @@
 logs/
 backup/
 output/
+batch_files/
 
 # exclude pretrained model
 # download these models
@@ -14,6 +15,7 @@ data/pretrained_models/word2vec/*
 .ipython/
 .jupyter/
 .local/
+.ipynb/
 
 
 

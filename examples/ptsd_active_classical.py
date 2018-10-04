@@ -14,12 +14,17 @@ LogisticRegression.
 
 import copy
 import argparse
+import sys
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, recall_score
+
+
+# project dependencies
+sys.path.insert(0, 'python')  # path to the module.
 
 # keras
 # from keras.preprocessing.text import Tokenizer
@@ -33,8 +38,8 @@ from libact.query_strategies import UncertaintySampling, RandomSampling
 from libact.labelers import InteractiveLabeler, IdealLabeler
 
 # demo utils
-from python.utils import load_ptsd_data
-from labeler import InteractivePaperLabeler
+from utils import *
+from libact_utils.labeler import InteractivePaperLabeler
 
 
 # parse arguments if available
@@ -228,9 +233,15 @@ def main(args):
         )
 
         # additional evaluations
-        pred = model.predict([x[0] for x in pool.get_entries()])
-        print(confusion_matrix(labels, pred))
-        print(recall_score(labels, pred))
+        #pred = model.predict([x[0] for x in pool.get_entries()])
+		
+        idx_features = pool.get_unlabeled_entries()
+        features = [x[1] for x in idx_features]
+        idx= [x[0] for x in idx_features]
+        pred = model.predict(features)
+
+        print(confusion_matrix(labels[idx], pred))
+        print(recall_score(labels[idx], pred))
 
         if args.interactive:
             # update plot

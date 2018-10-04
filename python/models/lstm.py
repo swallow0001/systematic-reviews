@@ -6,7 +6,8 @@ from keras.layers import Dense, Input, GlobalMaxPooling1D, LSTM
 from keras.layers import Conv1D, MaxPooling1D, Embedding
 from keras.models import Model
 from keras.callbacks import TensorBoard
-
+import tensorflow as tf
+from keras import backend as K
 
 class LSTM_Model():
     """
@@ -50,6 +51,16 @@ class LSTM_Model():
         return model_lstm
 
     def _get_pred(self, testing_dataset):
+        config = tf.ConfigProto()
+        config.intra_op_parallelism_threads = 1
+        config.inter_op_parallelism_threads = 1
+        session = tf.Session(config=config)
+        K.set_session(session)
+
+        session.run(tf.global_variables_initializer())
+        # tf.initialize_all_variables().run()
+        # K.set_session(K.tf.Session(config=K.tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)))
+
         prediction = self._model.predict(np.array(testing_dataset))
         return prediction
 
@@ -65,6 +76,18 @@ class LSTM_Model():
         return (tn, fp, fn, tp)
 
     def _train_model(self, *args):
+
+        #K.set_session(K.tf.Session(config=K.tf.ConfigProto(intra_op_parallelism_threads =‌1, inter_op_parallelism_threads = 1)))
+
+        config = tf.ConfigProto()
+        config.intra_op_parallelism_threads = 1
+        config.inter_op_parallelism_threads = 1
+        session = tf.Session(config=config)
+        K.set_session(session)
+
+        session.run(tf.global_variables_initializer())
+        # tf.initialize_all_variables().run()
+        # K.set_session(K.tf.Session(config=K.tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)))
 
         x_train = np.array(args[0])
         y_train = np.array(args[1])

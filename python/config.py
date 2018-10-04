@@ -33,3 +33,5 @@ TEMP_DATA_DIR = os.path.join(ROOT_DIR, "data_temp")
 
 ##### FILE LOCATIONS
 PTSD_PATH = os.path.join(PTSD_DIR, "schoot-lgmm-ptsd-traindata.csv")
+
+ACTIVE_DIR = os.path.join(OUTPUT_DIR, "active_learning")

@@ -130,12 +130,13 @@ lstm_scores = {
     'dataset': sr_args.dataset,
     'seed': seed_val,
     'training_size': sr_args.training_size,
+    'dropout': sr_args.dropout,
     'pred': [pred]
 }
 
 # save the result to a file
 if not os.path.exists('output'):
     os.makedirs('output')
-export_path = os.path.join('output', 'sr_lstm{}.json'.format(sr_args.T))
+export_path = os.path.join('output', 'dataset_{}_sr_lstm{}.json'.format(sr_args.dataset,sr_args.T))
 with open(export_path, 'w') as outfile:
     json.dump(lstm_scores, outfile)
