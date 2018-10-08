@@ -5,6 +5,8 @@ backup/
 output/
 batch_files/
 
+data_temp/
+
 # exclude pretrained model
 # download these models
 data/pretrained_models/*
