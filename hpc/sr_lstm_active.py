@@ -12,6 +12,7 @@ performance of using UncertaintySampling and RandomSampling under
 LogisticRegression.
 """
 
+import os
 import copy
 import argparse
 import sys
@@ -44,32 +45,58 @@ from config import *
 # parse arguments if available
 parser = argparse.ArgumentParser(description='Active learning parameters')
 parser.add_argument("-T", default=1, type=int, help='Task number.')
-parser.add_argument("-dataset", type=str, default='ptsd', help="The dataset to use for training.")
+parser.add_argument(
+    "-dataset",
+    type=str,
+    default='ptsd',
+    help="The dataset to use for training.")
 
 # the number of iteration
-parser.add_argument("-quota", type=int, default=10, help="The number of queries")
-parser.add_argument('-interactive', dest='interactive', action='store_true',help="Interactive or not?")
-parser.add_argument('-no-interactive', dest='interactive', action='store_false')
+parser.add_argument(
+    "-quota", type=int, default=10, help="The number of queries")
+parser.add_argument(
+    '-interactive',
+    dest='interactive',
+    action='store_true',
+    help="Interactive or not?")
+parser.add_argument(
+    '-no-interactive', dest='interactive', action='store_false')
 parser.set_defaults(interactive=False)
 
-parser.add_argument("-init_included_papers",default=10, type=int, help='Initial number of included papers')
+parser.add_argument(
+    "-init_included_papers",
+    default=10,
+    type=int,
+    help='Initial number of included papers')
 
-parser.add_argument('-model', type=str, default='LSTM', help="A deep learning model to use for classification.")
-parser.add_argument("-query_strategy", type=str, default='lc', help="The query strategy")
+parser.add_argument(
+    '-model',
+    type=str,
+    default='LSTM',
+    help="A deep learning model to use for classification.")
+parser.add_argument(
+    "-query_strategy", type=str, default='lc', help="The query strategy")
+
 
 def get_indices_labeled_entries(dataset):
     """Get labeled indices"""
-    return [idx for idx, entry in enumerate(dataset.data) if entry[1] is not None]
-    
+    return [
+        idx for idx, entry in enumerate(dataset.data) if entry[1] is not None
+    ]
+
+
 def select_prelabeled(labels, init_included, seed):
     included_indexes = np.where(labels[:, 1] == 1)[0]
     excluded_indexes = np.where(labels[:, 1] == 0)[0]
-    included_number = min(init_included,len(included_indexes))
+    included_number = min(init_included, len(included_indexes))
     np.random.seed(seed)
-    to_add_indx = np.random.choice(included_indexes, included_number, replace=False)
-    to_add_indx = np.append(to_add_indx,
-              np.random.choice(excluded_indexes, included_number, replace=False))
+    to_add_indx = np.random.choice(
+        included_indexes, included_number, replace=False)
+    to_add_indx = np.append(
+        to_add_indx,
+        np.random.choice(excluded_indexes, included_number, replace=False))
     return to_add_indx
+
 
 def make_pool(X, y, prelabeled=np.arange(5)):
     """Function to split dataset into train and test dataset.
@@ -91,94 +118,112 @@ def make_pool(X, y, prelabeled=np.arange(5)):
     # the 'prelabeled' labels of the dataset are already labeled.
     return Dataset(X, y_train_labeled), Dataset(X, y)
 
+
 # For cross validation
-def cross_validation(model,pool,split_no,seed):
+def cross_validation(model, pool, split_no, seed):
 
     np.random.seed(seed)
-    
-    X,Y = pool.format_sklearn()
 
-    kfold = StratifiedKFold(n_splits=split_no, shuffle = True, random_state=seed)
-    cvscores =[]
+    X, Y = pool.format_sklearn()
+
+    kfold = StratifiedKFold(n_splits=split_no, shuffle=True, random_state=seed)
+    cvscores = []
     for train_idx, val_idx in kfold.split(X, Y):
-        print('train_idx:',train_idx,' val_idx:',val_idx)
-        model.train(pool,
-            list(X[idx] for idx in train_idx), 
-            list(Y[idx] for idx in train_idx),
-            list(X[idx] for idx in val_idx),
-            list(Y[idx] for idx in val_idx))
+        print('train_idx:', train_idx, ' val_idx:', val_idx)
+        model.train(pool, list(X[idx] for idx in train_idx),
+                    list(Y[idx] for idx in train_idx),
+                    list(X[idx] for idx in val_idx),
+                    list(Y[idx] for idx in val_idx))
         tn, fp, fn, tp, pred = model.score(
-            list(X[idx] for idx in val_idx),
-            list(Y[idx] for idx in val_idx),1 )
-        to_read_rate = (tp + fp)/(tp + fp + tn + fn)
-        print('to_read_rate:',to_read_rate)
-#     #     print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+            list(X[idx] for idx in val_idx), list(Y[idx] for idx in val_idx),
+            1)
+        to_read_rate = (tp + fp) / (tp + fp + tn + fn)
+        print('to_read_rate:', to_read_rate)
+        #     #     print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
         # add recalls
         cvscores.append(to_read_rate)
-#     # print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))    
+
+
+#     # print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))
     return (np.mean(cvscores), np.std(cvscores))
+
+
 def main(args):
-    pickle_file_name = args.dataset + '_pickle.pickle'
-    pickle_file_path = os.path.join(TEMP_DATA_DIR, pickle_file_name)
 
-    seed = 2018* args.T
-    if args.dataset == 'ptsd':
-        texts, lbls = load_ptsd_data()
-    else: 
-        texts, lbls = load_drug_data(args.dataset)
+    # Prepare the datasets. Dataset, labels and embedding layer are stored to
+    # disk in pickle file.
+    pickle_fp = os.path.join(TEMP_DATA_DIR, args.dataset + '_pickle.pickle')
 
-    # get the texts and their corresponding labels
-    textManager = TextManager()
-    data, labels,word_index = textManager.sequence_maker(texts,lbls)
-    max_num_words = textManager.max_num_words
-    max_sequence_length = textManager.max_sequence_length
+    if os.path.isfile(pickle_fp):
 
-    prelabeled_index = select_prelabeled(labels, args.init_included_papers, seed)
-    # [1, 2, 3, 4, 5, 218, 260, 466, 532, 564]
-    print('prelabeled_index',prelabeled_index)
-    pool, pool_ideal = make_pool(
-        data, labels,
-        prelabeled=prelabeled_index
-    )
+        # read the pickle file
+        with open(file_name, 'rb') as f:
+            data, labels, embedding_layer = pickle.load(f)
 
-    if os.path.isfile(pickle_file_path):
-        embedding_layer = load_pickle(pickle_file_path)
     else:
+
+        # load the dataset from disk
+        if args.dataset == 'ptsd':
+            texts, lbls = load_ptsd_data()
+        else:
+            texts, lbls = load_drug_data(args.dataset)
+
+        # get the texts and their corresponding labels
+        max_num_words = 20000
+        max_sequence_length = 1000
+        textManager = TextManager(
+            max_num_words=max_num_words,
+            max_sequence_length=max_sequence_length
+        )
+        data, labels, word_index = textManager.sequence_maker(texts, lbls)
+
         if not os.path.exists(TEMP_DATA_DIR):
             os.makedirs(TEMP_DATA_DIR)
 
-        embedding = Word2VecEmbedding(word_index, max_num_words, max_sequence_length)
+        embedding = Word2VecEmbedding(word_index, max_num_words,
+                                      max_sequence_length)
         embedding.load_word2vec_data(GLOVE_PATH)
         embedding_layer = embedding.build_embedding()
-        dump_pickle(embedding_layer, pickle_file_path)
+
+        with open(file_name, 'wb') as f:
+            pickle.dump((data, labels, embedding_layer), f)
+
+    # label the first batch (the initial labels)
+    seed = 2018 * args.T
+    prelabeled_index = select_prelabeled(labels, args.init_included_papers,
+                                         seed)
+    # [1, 2, 3, 4, 5, 218, 260, 466, 532, 564]
+    print('prelabeled_index', prelabeled_index)
+    pool, pool_ideal = make_pool(data, labels, prelabeled=prelabeled_index)
+
     # get the model
     if args.model.lower() == 'lstm':
         deep_model = LSTM_Libact
         kwargs_model = {
-        'backwards':True,
-        'dropout':0.4,
-        'optimizer':'rmsprop',
-        'max_sequence_length':max_sequence_length,
-        'embedding_layer':embedding_layer
+            'backwards': True,
+            'dropout': 0.4,
+            'optimizer': 'rmsprop',
+            'max_sequence_length': max_sequence_length,
+            'embedding_layer': embedding_layer
         }
     else:
         raise ValueError('Model not found.')
 
     model = deep_model(**kwargs_model)
 
-#     # query strategy
-#     # https://libact.readthedocs.io/en/latest/libact.query_strategies.html
-#     # #libact-query-strategies-uncertainty-sampling-module
-#     #
-#     # least confidence (lc), it queries the instance whose posterior
-#     # probability of being positive is nearest 0.5 (for binary
-#     # classification); smallest margin (sm), it queries the instance whose
-#     # posterior probability gap between the most and the second probable
-#     # labels is minimal
-#     qs = UncertaintySampling(
-#         pool, method='lc', model=SklearnProbaAdapter(sklearn_model(**kwargs_model)))
+    #     # query strategy
+    #     # https://libact.readthedocs.io/en/latest/libact.query_strategies.html
+    #     # #libact-query-strategies-uncertainty-sampling-module
+    #     #
+    #     # least confidence (lc), it queries the instance whose posterior
+    #     # probability of being positive is nearest 0.5 (for binary
+    #     # classification); smallest margin (sm), it queries the instance whose
+    #     # posterior probability gap between the most and the second probable
+    #     # labels is minimal
+    #     qs = UncertaintySampling(
+    #         pool, method='lc', model=SklearnProbaAdapter(sklearn_model(**kwargs_model)))
 
-#Todo: check if 'lc' works correctly/ add random as well
+    #Todo: check if 'lc' works correctly/ add random as well
     qs = UncertaintySampling(
         pool, method='lc', model=deep_model(**kwargs_model))
 
@@ -190,7 +235,7 @@ def main(args):
 
     result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
     query_i = 1
-##Todo: add multiple papers to labeled dataset with size of batch_size
+    ##Todo: add multiple papers to labeled dataset with size of batch_size
     while query_i <= args.quota:
 
         # make a query from the pool
@@ -212,23 +257,24 @@ def main(args):
         model.train(pool)
 
         idx_features = pool.get_unlabeled_entries()
-        idx= [x[0] for x in idx_features]
+        idx = [x[0] for x in idx_features]
         features = [x[1] for x in idx_features]
         pred = model.predict(features)
 
         c_name = str(query_i)
-        result_df[c_name]=-1
-        result_df.loc[idx,c_name]= pred[:,1]
+        result_df[c_name] = -1
+        result_df.loc[idx, c_name] = pred[:, 1]
 
         # update the query counter
         query_i += 1
 
-
     # save the result to a file
-    output_dir = os.path.join(ACTIVE_OUTPUT_DIR,args.dataset)
+    output_dir = os.path.join(ACTIVE_OUTPUT_DIR, args.dataset)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    export_path = os.path.join(output_dir,'dataset_{}_sr_lstm_active{}.csv'.format(args.dataset,args.T))
+    export_path = os.path.join(
+        output_dir, 'dataset_{}_sr_lstm_active{}.csv'.format(
+            args.dataset, args.T))
 
     result_df.to_csv(export_path)
     input("Press any key to continue...")
