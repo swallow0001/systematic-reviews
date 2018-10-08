@@ -1,3 +1,4 @@
+git+https://github.com/J535D165/libact-lite
 keras
 keras_metrics
 numpy
