@@ -27,12 +27,13 @@ from sklearn.metrics import accuracy_score, confusion_matrix, recall_score
 sys.path.insert(0, 'python')  # path to the module.
 
 from models.lstm_libact import LSTM_Libact
+from query_strategies.uncertainty_sampling import UncertaintySampling
 
 from sklearn.model_selection import StratifiedKFold
 
 # libact classes
 from libact.base.dataset import Dataset
-from libact.query_strategies import UncertaintySampling, RandomSampling
+from libact.query_strategies import RandomSampling
 from libact.labelers import InteractiveLabeler, IdealLabeler
 from libact_utils.labeler import InteractivePaperLabeler
 
@@ -66,6 +67,13 @@ parser.add_argument(
     default=10,
     type=int,
     help='Initial number of included papers')
+
+parser.add_argument(
+    "-batch_size",
+    default=10,
+    type=int,
+    help='Batch size')
+
 
 parser.add_argument(
     '-model',
@@ -175,6 +183,8 @@ def main(args):
         raise ValueError('Model not found.')
 
     model = deep_model(**kwargs_model)
+    init_weights = model._model.get_weights()
+
 
     #     # query strategy
     #     # https://libact.readthedocs.io/en/latest/libact.query_strategies.html
@@ -188,10 +198,6 @@ def main(args):
     #     qs = UncertaintySampling(
     #         pool, method='lc', model=SklearnProbaAdapter(sklearn_model(**kwargs_model)))
 
-    #Todo: check if 'lc' works correctly/ add random as well
-    qs = UncertaintySampling(
-        pool, method='lc', model=deep_model(**kwargs_model))
-
     # Give each label its name (labels are from 0 to n_classes-1)
     if args.interactive:
         lbr = InteractivePaperLabeler(label_name=["0", "1"])
@@ -199,36 +205,51 @@ def main(args):
         lbr = IdealLabeler(dataset=pool_ideal)
 
     result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
-    query_i = 1
+    query_i = 0
     ##Todo: add multiple papers to labeled dataset with size of batch_size
+
     while query_i <= args.quota:
 
         # make a query from the pool
         print("Asking sample from pool with Uncertainty Sampling")
         # unlabeled_entry = pool.get_unlabeled_entries()
 
-        ask_id = qs.make_query()
-        print("Index {} returned. True label is {}.".format(
-            ask_id, pool_ideal.data[ask_id][1]))
-
-        # get the paper
-        data_point = pool.data[ask_id][0]
-        lb = lbr.label(data_point)
-
-        # update the label in the train dataset
-        pool.update(ask_id, lb)
-        # train the model again
-        # to_read_mean, to_read_std = cross_validation(model,pool,split_no=3,seed =query_i)
+        # train the model
         model.train(pool)
 
+        # predict the label of the unlabeled entries in the pool
         idx_features = pool.get_unlabeled_entries()
         idx = [x[0] for x in idx_features]
         features = [x[1] for x in idx_features]
         pred = model.predict(features)
 
+        # make query
+        qs = UncertaintySampling(
+            pool, method='lc', model=model)
+        ask_id = qs.make_query(n=args.batch_size)
+
+        if not isinstance(ask_id, list):
+            ask_id = [ask_id]
+
+        # deal with batch query
+        for id in ask_id:
+
+            # label the entry
+            data_point = pool.data[id][0]
+            lb = lbr.label(data_point)
+            print("Index {} returned. True label is {}.".format(
+                id, lb))
+
+            # update the pool with the new label
+            pool.update(id, lb)
+
+        # store result in dataframe
         c_name = str(query_i)
         result_df[c_name] = -1
         result_df.loc[idx, c_name] = pred[:, 1]
+
+        # reset the weights
+        model._model.set_weights(init_weights)
 
         # update the query counter
         query_i += 1
