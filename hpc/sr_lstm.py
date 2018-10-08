@@ -27,7 +27,7 @@ from models.textmanager import TextManager
 from models.embedding import Word2VecEmbedding
 from models.lstm import LSTM_Model
 from utils import load_ptsd_data, load_drug_data, load_pickle, dump_pickle, split_data
-from config import GLOVE_DIR, TEMP_DATA_DIR
+from config import *
 
 # parse the arguments
 parser = argparse.ArgumentParser(description='Systematic Review options')
@@ -135,8 +135,9 @@ lstm_scores = {
 }
 
 # save the result to a file
-if not os.path.exists('output'):
-    os.makedirs('output')
-export_path = os.path.join('output', 'dataset_{}_sr_lstm{}.json'.format(sr_args.dataset,sr_args.T))
+output_dir = os.path.join(PASSIVE_OUTPUT_DIR,args.dataset)
+if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+export_path = os.path.join(output_dir, 'dataset_{}_sr_lstm{}.json'.format(sr_args.dataset,sr_args.T))
 with open(export_path, 'w') as outfile:
     json.dump(lstm_scores, outfile)

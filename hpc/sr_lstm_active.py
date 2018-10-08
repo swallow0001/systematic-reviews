@@ -225,10 +225,10 @@ def main(args):
 
 
     # save the result to a file
-    output_dir = os.path.join(ACTIVE_DIR,args.dataset)
+    output_dir = os.path.join(ACTIVE_OUTPUT_DIR,args.dataset)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    export_path = os.path.join(output_dir,'sr_lstm_active{}.csv'.format(args.T))
+    export_path = os.path.join(output_dir,'dataset_{}_sr_lstm_active{}.csv'.format(args.dataset,args.T))
 
     result_df.to_csv(export_path)
     input("Press any key to continue...")

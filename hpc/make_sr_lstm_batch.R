@@ -163,7 +163,7 @@ write.csv(x = task_params, file = task_params_file)
 proces_per_node   <- 15                             # number of parallel processes on a node a.k.a. chunk
 if (active_learning) {
   task_per_node     <- 15
-  minutes_per_task  <- 70  # see XXX for how to determine this value (to do)
+  minutes_per_task  <- 310  # see XXX for how to determine this value (to do)
   
 }else{
   task_per_node     <- 105
