@@ -69,7 +69,7 @@ args_model = {
     'backwards': True,
     'dropout': sr_args.dropout,
     'optimizer': 'rmsprop',
-    'max_sequence_length': max_sequence_length,
+    'max_sequence_length': 1000,
     'embedding_layer': embedding_layer
 }
 start = datetime.now()
