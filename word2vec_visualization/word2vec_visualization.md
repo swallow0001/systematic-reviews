@@ -3,25 +3,32 @@
 
 Tutorial | by Qixiang Fang
 
-This is a tutorial on how to easily visualize and thus interpret your word2vec models on the __tensorboard projector__. We also demonstrate via such visualizations that __our approach of training a data set on a model already built on the FastText wikipedia pre-trained word vector data__ achieves better performance, in comparison to either models trained on just a new data set or the wikepedia pre-trained data alone.
+This is a tutorial on how to easily visualize and thus interpret your word2vec
+models on the __[tensorboard projector](https://projector.tensorflow.org/)__.
+We also demonstrate via such visualizations that __our approach of training a
+data set on a model already built on the FastText wikipedia pre-trained word
+vector data__ achieves better performance, in comparison to either models
+trained on just a new data set or the wikepedia pre-trained data alone.
 
 ## Import Packages
 
 
 ```python
+
+import os
+import datetime
+
 import gensim 
 from gensim.models import Word2Vec
-import pandas as pd
 from gensim.scripts import word2vec2tensor
-import datetime
-import os
+import pandas as pd
 ```
 
 ## Define Useful Functions
 
 
 ```python
-#A simple function to pre-process data usable for gensim
+# A simple function to pre-process data usable for gensim
 def process_data(file):
     for line in file:
         yield gensim.utils.simple_preprocess(line)
@@ -29,8 +36,8 @@ def process_data(file):
 
 
 ```python
-#A re-written gensim function to convert word2vec files to tensor formates, 
-#due to decoding procedures incompatible with python 35
+# A re-written gensim function to convert word2vec files to tensor formates, 
+# due to decoding procedures incompatible with python 35
 def word2vec2tensor2(word2vec_model_path, tensor_filename, binary=False):
 
     model = gensim.models.KeyedVectors.load_word2vec_format(word2vec_model_path, binary=False)
@@ -50,7 +57,7 @@ def word2vec2tensor2(word2vec_model_path, tensor_filename, binary=False):
 
 
 ```python
-#A simple function to get current time in string formats, used later for file names
+# A simple function to get current time in string formats, used later for file names
 def get_time():
     now = datetime.datetime.now()
     time = now.strftime("%Y-%m-%d %H-%M")
@@ -61,19 +68,19 @@ def get_time():
 
 
 ```python
-#Set your working directory
-os.chdir("C:\\Users\\Law_Adder\\Desktop\\word2vec") #just my own example
+# Location of the training data
+fp_ptsd = os.path.join("data", "datasets", "ptsd_review", "csv", "schoot-lgmm-ptsd-traindata.csv")
 
-#Import data (the ptsd data set)
-data = pd.read_csv('schoot_train_data.csv')
+# Import data (the ptsd data set)
+data = pd.read_csv(fp_ptsd)
 
-#Merge individual titles and abstracts into single strings
+# Merge individual titles and abstracts into single strings
 usedata = data['title'].fillna('') + ' ' + data['abstract'].fillna('')
 
-#Convert from panda data frame to lists
+# Convert from panda data frame to lists
 usedata_list = usedata.values.tolist() 
 
-#Preprocess data into a format workable with gensim
+# Preprocess data into a format workable with gensim
 usedata_gen = process_data(usedata_list)
 usedata_clean = list(usedata_gen) #This is the data we will be working with
 ```
@@ -91,53 +98,53 @@ Please use the _'text'_ file instead of _'bin + text'_.
 ```python
 from gensim.models import KeyedVectors
 
-#Load the original Facebook FastText files. This can take a while!!!
+# Load the original Facebook FastText files. This can take a while!!!
 en_model = KeyedVectors.load_word2vec_format('wiki.en.vec')
-#Convert and save as gensim word2vec models
+# Convert and save as gensim word2vec models
 en_model.save_word2vec_format("wiki"+".bin", binary=True)
 del en_model
 ```
 
-## Model 1: Just PTSD Data Set
+## Model 1: PTSD dataset only
 
 
 ```python
-#Train a word2vec model based on only the PTST data set
-#Only includes words with a frequency of at least 10
+# Train a word2vec model based on only the PTST data set
+# Only includes words with a frequency of at least 10
 model1 = Word2Vec(usedata_clean, size = 300, min_count=10)
 
-#Check words similar to 'ptsd'
+# Check words similar to 'ptsd'
 model1.most_similar(positive = "ptsd")
 
-#Save model as word2vec format
+# Save model as word2vec format
 model1_name = "word2vec_ptsd" + get_time()
 model1.wv.save_word2vec_format(model1_name + ".txt", binary=False)
 
-#Convert word2vec file to tensorboard format
+# Convert word2vec file to tensorboard format
 word2vec2tensor2(model1_name + ".txt", model1_name, binary = False)
 ```
 
-## Model 2: Just FastText Pre-trained Word Vectors
+## Model 2: FastText/Wikipedia pre-trained word embeddings only
 
 
 ```python
-#Prepare a word2vec model with a vocabulary identital to the one in Model 1
+# Prepare a word2vec model with a vocabulary identital to the one in Model 1
 model2 = Word2Vec(size=300, min_count=10)
 model2.build_vocab(usedata_clean)
 len(model2.wv.vocab) #Check vocabulary size
 
-#Load the FastText data file into the model, train it, but only for words already
+# Load the FastText data file into the model, train it, but only for words already
 #defined in the vocabulary, and set lockf = 1 so that word vectors can be updated
 model2.intersect_word2vec_format(fname = "wiki.bin", binary = True, lockf = 1)
 
-#Check words similar to 'ptsd'
+# Check words similar to 'ptsd'
 model2.most_similar(positive = "ptsd")
 
-#Save model as word2vec format
+# Save model as word2vec format
 model2_name = "word2vec_wiki" + get_time()
 model2.wv.save_word2vec_format(model2_name + ".txt", binary=False)
 
-#Convert word2vec file to tensorboard format
+# Convert word2vec file to tensorboard format
 word2vec2tensor2(model2_name + ".txt", model2_name, binary = False)
 ```
 
@@ -145,24 +152,24 @@ word2vec2tensor2(model2_name + ".txt", model2_name, binary = False)
 
 
 ```python
-#Reuse model 2 for model 3
+# Reuse model 2 for model 3
 model3 = model2
 
-#Continue training model 2 with the PTSD data set
+# Continue training model 2 with the PTSD data set
 model3.train(usedata_clean, total_examples=len(usedata_clean), epochs = 10)
 
-#Check words similar to 'ptsd'
+# Check words similar to 'ptsd'
 model3.most_similar(positive = "ptsd")
 
-#Save model as word2vec format
+# Save model as word2vec format
 model3_name = "word2vec_both" + get_time()
 model3.wv.save_word2vec_format(model3_name + ".txt", binary=False)
 
-#Convert word2vec file to tensorboard format
+# Convert word2vec file to tensorboard format
 word2vec2tensor2(model3_name + ".txt", model3_name, binary = False)
 ```
 
-## Summary
+## Visualize word embeddings
 
 You can observe how these three models relate to each other by checking word associations. For instance, we have done so by finding words similar to '__ptsd__'. You can see that the results become more meaningful and interpretable over the three models. 
 
