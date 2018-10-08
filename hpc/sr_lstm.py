@@ -23,10 +23,8 @@ from datetime import datetime
 # project dependencies
 sys.path.insert(0, 'python')  # path to the module.
 
-from models.textmanager import TextManager
-from models.embedding import Word2VecEmbedding
 from models.lstm import LSTM_Model
-from utils import load_ptsd_data, load_drug_data, load_pickle, dump_pickle, split_data
+from utils import split_data
 from config import *
 
 # parse the arguments
@@ -51,21 +49,10 @@ parser.add_argument(
 sr_args = parser.parse_args()
 print(sr_args)
 
-pickle_file_name = sr_args.dataset + '_pickle.pickle'
-pickle_file_path = os.path.join(TEMP_DATA_DIR, pickle_file_name)
-
-start = datetime.now()
-# Load dataset
-# get the texts and their corresponding labels
-if sr_args.dataset == 'ptsd':
-    texts, labels = load_ptsd_data()
-else:
-    texts, labels = load_drug_data(sr_args.dataset)
-
-textmanager = TextManager()
-data, labels, word_index = textmanager.sequence_maker(texts, labels)
-max_num_words = textmanager.max_num_words
-max_sequence_length = textmanager.max_sequence_length
+# Read dataset, labels and embedding layer from pickle file.
+pickle_fp = os.path.join(TEMP_DATA_DIR, args.dataset + '_pickle.pickle')
+with open(pickle_fp, 'rb') as f:
+    data, labels, embedding_layer = pickle.load(f)
 
 # Split dataset to train and test
 x_train, x_val, y_train, y_val = split_data(
@@ -75,30 +62,6 @@ print("x_train shape:", x_train.shape, ", x_val shape:", x_val.shape)
 print("y_train shape:", y_train.shape, ", y_val shape:", y_val.shape)
 print("included in train", (y_train[:, 1] == 1).sum())
 print("included in test", (y_val[:, 1] == 1).sum())
-
-runtime = datetime.now() - start
-print('loading dataset takes', runtime.total_seconds())
-
-if os.path.isfile(pickle_file_path):
-    start = datetime.now()
-    embedding_layer = load_pickle(pickle_file_path)
-    runtime = datetime.now() - start
-    print('loading pickle takes', runtime.total_seconds())
-
-else:
-    start = datetime.now()
-
-    if not os.path.exists(TEMP_DATA_DIR):
-        os.makedirs(TEMP_DATA_DIR)
-
-    # make an embedding layer
-    fp_wiki_w2v = os.path.join(GLOVE_DIR, "wiki.en.vec")
-    embedding = Word2VecEmbedding(word_index, max_num_words, max_sequence_length)
-    embedding.load_word2vec_data(fp_wiki_w2v)
-    embedding_layer = embedding.build_embedding()
-    dump_pickle(embedding_layer, pickle_file_path)
-    runtime = datetime.now() - start
-    print('loading w2vec takes', runtime.total_seconds())
 
 # make a lstm model
 deep_model = LSTM_Model
@@ -135,9 +98,9 @@ lstm_scores = {
 }
 
 # save the result to a file
-output_dir = os.path.join(PASSIVE_OUTPUT_DIR,args.dataset)
+output_dir = os.path.join(PASSIVE_OUTPUT_DIR, args.dataset)
 if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-export_path = os.path.join(output_dir, 'dataset_{}_sr_lstm{}.json'.format(sr_args.dataset,sr_args.T))
+export_path = os.path.join(output_dir, 'dataset_{}_sr_lstm{}.json'.format(sr_args.dataset, sr_args.T))
 with open(export_path, 'w') as outfile:
     json.dump(lstm_scores, outfile)
