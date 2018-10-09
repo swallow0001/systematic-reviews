@@ -2,12 +2,16 @@
 
 import os
 
-##### GLOBAL VARIABLES
+# GLOBAL VARIABLES
 
 # project root
-ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
+ROOT_DIR = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    os.pardir,
+    os.pardir
+)
 
-##### FOLDER STRUCTURE
+# FOLDER STRUCTURE
 
 # log dir (for ML models)
 LOG_DIR = os.path.join(ROOT_DIR, "logs")
@@ -31,7 +35,7 @@ GLOVE_PATH = os.path.join(GLOVE_DIR, "wiki.en.vec")
 
 TEMP_DATA_DIR = os.path.join(ROOT_DIR, "data_tmp")
 
-##### FILE LOCATIONS
+# FILE LOCATIONS
 PTSD_PATH = os.path.join(PTSD_DIR, "schoot-lgmm-ptsd.csv")
 
 ACTIVE_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "active_learning")
