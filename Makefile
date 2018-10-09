@@ -23,3 +23,4 @@ $(DATACSV)/schoot-lgmm-ptsd-included-2.csv : $(DATARIS)/schoot-lgmm-ptsd-include
 
 clean:
 	rm -rf $(DATACSV)
+	rm -rf output/
