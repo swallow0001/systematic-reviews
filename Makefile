@@ -1,7 +1,7 @@
 DATA=$(PWD)/data
 DATARIS=$(DATA)/ptsd_review/ris
 DATACSV=$(DATA)/ptsd_review/csv
-WORD2VEC=$(PWD)/word2vec
+WORD2VEC=$(DATA)/pretrained_models/word2vec
 
 build : $(DATACSV)/schoot-lgmm-ptsd-initial.csv \
         $(DATACSV)/schoot-lgmm-ptsd-included-1.csv \
@@ -21,6 +21,10 @@ $(DATACSV)/schoot-lgmm-ptsd-included-1.csv : $(DATARIS)/schoot-lgmm-ptsd-include
 $(DATACSV)/schoot-lgmm-ptsd-included-2.csv : $(DATARIS)/schoot-lgmm-ptsd-included-2.ris
 	python python/risparser.py $(DATARIS)/schoot-lgmm-ptsd-included-2.ris $(DATACSV)/schoot-lgmm-ptsd-included-2.csv
 
+pickle : 
+	python hpc/data_prep.py --dataset=$(DATASET)
+
 clean:
 	rm -rf $(DATACSV)
 	rm -rf output/
+	rm -rf batch_files/

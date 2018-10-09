@@ -69,7 +69,7 @@ def get_time():
 
 ```python
 # Location of the training data
-fp_ptsd = os.path.join("data", "datasets", "ptsd_review", "csv", "schoot-lgmm-ptsd-traindata.csv")
+fp_ptsd = os.path.join("data", "datasets", "ptsd_review", "schoot-lgmm-ptsd.csv")
 
 # Import data (the ptsd data set)
 data = pd.read_csv(fp_ptsd)

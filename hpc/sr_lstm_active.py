@@ -24,7 +24,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, recall_score
 
 # project dependencies
-sys.path.insert(0, 'python')  # path to the module.
+sys.path.insert(0, os.path.join('src', 'python'))  # path to the module.
 
 from models.lstm_libact import LSTM_Libact
 from query_strategies.uncertainty_sampling import UncertaintySampling

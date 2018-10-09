@@ -5,7 +5,7 @@ import sys
 import argparse
 
 # project dependencies
-sys.path.insert(0, 'python')  # path to the module.
+sys.path.insert(0, os.path.join('src', 'python'))  # path to the module.
 
 from models.textmanager import TextManager
 from models.embedding import Word2VecEmbedding
