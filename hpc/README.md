@@ -37,6 +37,12 @@ on the SurfSara HPC infrastructure.
 ``` bash
 module load eb
 module load R
+module load python/3.5.0-intel
+```
+
+Install dependencies:
+```bash 
+pip install --user git+https://github.com/J535D165/libact-lite
 ```
 
 ### STEP 1: generate batch files
@@ -44,19 +50,19 @@ module load R
 Generate the batch files for active learning, use the following command:
 
 ``` bash
-Rscript make_sr_lstm_batch.R [DATASET_NAME] --active
+Rscript hpc/make_sr_lstm_batch.R [DATASET_NAME] --active
 ```
 
 and for passive learning the following command:
 
 ``` bash
-Rscript make_sr_lstm_batch.R [DATASET_NAME] --no-active
+Rscript hpc/make_sr_lstm_batch.R [DATASET_NAME] --no-active
 ```
 
 Working example: 
 
 ``` bash
-Rscript make_sr_lstm_batch.R ptsd --active
+Rscript hpc/make_sr_lstm_batch.R ptsd --active
 ```
 
 
@@ -73,6 +79,19 @@ following shell command:
 python hpc/data_prep.py --dataset=ptsd
 ```
 
+### STEP 3: start simulation
+
+Submit the jobs with: 
+
+```bash
+source batch_files/active_learning_ptsd_submit_ptsd.sh
+```
+
+Check the status of the job:
+
+```bash 
+checkjob [JOB_ID]
+```
 
 
 
