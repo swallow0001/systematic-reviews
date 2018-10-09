@@ -5,6 +5,7 @@ backup/
 output/
 batch_files/
 
+data_tmp/
 data_temp/
 
 # exclude pretrained model

@@ -29,7 +29,7 @@ GLOVE_DIR = os.path.join(DATA_DIR, "pretrained_models", "word2vec")
 # glove path
 GLOVE_PATH = os.path.join(GLOVE_DIR, "wiki.en.vec")
 
-TEMP_DATA_DIR = os.path.join(ROOT_DIR, "data_temp")
+TEMP_DATA_DIR = os.path.join(ROOT_DIR, "data_tmp")
 
 ##### FILE LOCATIONS
 PTSD_PATH = os.path.join(PTSD_DIR, "schoot-lgmm-ptsd-traindata.csv")
