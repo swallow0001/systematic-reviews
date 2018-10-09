@@ -175,4 +175,3 @@ vignettes/*.pdf
 *.md~
 .Rproj.user
 
-data/datasets/drug_class_review/ACEInhibitors\.csv

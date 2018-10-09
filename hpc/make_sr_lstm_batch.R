@@ -14,16 +14,29 @@
 library(batchtools)
 library(dplyr)
 
+
+args = commandArgs()
+if (length(args) != 2){
+  stop("Arguments are missing")
+}else{
+  dataset = args[1]
+  if (args[2] == "--active"){
+    active_learning = TRUE
+  } else {
+    active_learning = FALSE
+  }
   
+}
+
 # create_batch: create a shell script for running M models on one node ----
 
-active_learning = TRUE
+# active_learning = TRUE
 
 # list of available dataset
 # By commenting in/out user have to indicate which dataset must be used
 # Should be an argument on the command line of this script (to-do)
 #
-dataset <- "ptsd"
+# dataset <- "ptsd"
 #dataset <- "AtypicalAntipsychotics"
 #dataset <- "ACEInhibitors"
 #dataset <- "Opiods"
