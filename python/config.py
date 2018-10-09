@@ -20,7 +20,7 @@ DATA_DIR = os.path.join(ROOT_DIR, "data")
 
 # dataset dir
 DATASETS_DIR = os.path.join(DATA_DIR, "datasets")
-PTSD_DIR = os.path.join(DATASETS_DIR, "ptsd_review", "csv")
+PTSD_DIR = os.path.join(DATASETS_DIR, "ptsd_review")
 DRUG_DIR = os.path.join(DATASETS_DIR, "drug_class_review")
 
 # glove dir
@@ -32,7 +32,7 @@ GLOVE_PATH = os.path.join(GLOVE_DIR, "wiki.en.vec")
 TEMP_DATA_DIR = os.path.join(ROOT_DIR, "data_tmp")
 
 ##### FILE LOCATIONS
-PTSD_PATH = os.path.join(PTSD_DIR, "schoot-lgmm-ptsd-traindata.csv")
+PTSD_PATH = os.path.join(PTSD_DIR, "schoot-lgmm-ptsd.csv")
 
 ACTIVE_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "active_learning")
 PASSIVE_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "passive")
