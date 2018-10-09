@@ -28,12 +28,12 @@ sys.path.insert(0, 'python')  # path to the module.
 
 from models.lstm_libact import LSTM_Libact
 from query_strategies.uncertainty_sampling import UncertaintySampling
+from query_strategies.random_sampling import RandomSampling
 
 from sklearn.model_selection import StratifiedKFold
 
 # libact classes
 from libact.base.dataset import Dataset
-from libact.query_strategies import RandomSampling
 from libact.labelers import InteractiveLabeler, IdealLabeler
 from libact_utils.labeler import InteractivePaperLabeler
 
@@ -45,43 +45,43 @@ from config import *
 parser = argparse.ArgumentParser(description='Active learning parameters')
 parser.add_argument("-T", default=1, type=int, help='Task number.')
 parser.add_argument(
-    "-dataset",
+    "--dataset",
     type=str,
     default='ptsd',
     help="The dataset to use for training.")
 
 # the number of iteration
 parser.add_argument(
-    "-quota", type=int, default=10, help="The number of queries")
+    "--quota", type=int, default=10, help="The number of queries")
 parser.add_argument(
-    '-interactive',
+    '--interactive',
     dest='interactive',
     action='store_true',
     help="Interactive or not?")
 parser.add_argument(
-    '-no-interactive', dest='interactive', action='store_false')
+    '--no-interactive', dest='interactive', action='store_false')
 parser.set_defaults(interactive=False)
 
 parser.add_argument(
-    "-init_included_papers",
+    "--init_included_papers",
     default=10,
     type=int,
     help='Initial number of included papers')
 
 parser.add_argument(
-    "-batch_size",
+    "--batch_size",
     default=10,
     type=int,
     help='Batch size')
 
 
 parser.add_argument(
-    '-model',
+    '--model',
     type=str,
     default='LSTM',
     help="A deep learning model to use for classification.")
 parser.add_argument(
-    "-query_strategy", type=str, default='lc', help="The query strategy")
+    "--query_strategy", type=str, default='lc', help="The query strategy")
 
 
 def get_indices_labeled_entries(dataset):
@@ -224,8 +224,12 @@ def main(args):
         pred = model.predict(features)
 
         # make query
-        qs = UncertaintySampling(
+        if (args.query_strategy =='lc'):
+            qs = UncertaintySampling(
             pool, method='lc', model=model)
+        elif (args.query_strategy =='random'):
+            qs = RandomSampling(pool)
+
         ask_id = qs.make_query(n=args.batch_size)
 
         if not isinstance(ask_id, list):
