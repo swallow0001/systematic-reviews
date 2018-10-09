@@ -2,6 +2,25 @@
 
 
 ## STEP X: prepare datasets
+## STEP 1: generate batch files
+
+Generate the batch files for active learning, use the following command:
+
+``` bash
+Rscript make_sr_lstm_batch.R [DATASET_NAME] --active
+```
+
+and for passive learning the following command:
+
+``` bash
+Rscript make_sr_lstm_batch.R [DATASET_NAME] --no-active
+```
+
+Working example: 
+
+``` bash
+Rscript make_sr_lstm_batch.R ptsd --active
+```
 
 To speed up the computations on the HPC, several Python objects are generated
 beforehand and stored in a pickle file. This file makes it possible to load

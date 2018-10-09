@@ -11,11 +11,13 @@
 #################
 
 # initialising --------
-library(batchtools)
+# library(batchtools)
 library(dplyr)
+library(data.table)
 
 
-args = commandArgs()
+args = commandArgs(trailingOnly = TRUE)
+print(args)
 if (length(args) != 2){
   stop("Arguments are missing")
 }else{
