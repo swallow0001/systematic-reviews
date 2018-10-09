@@ -263,8 +263,8 @@ def main(args):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     export_path = os.path.join(
-        output_dir, 'dataset_{}_sr_lstm_active{}.csv'.format(
-            args.dataset, args.T))
+        output_dir, 'dataset_{}_sr_lstm_active{}_q_{}.csv'.format(
+            args.dataset, args.T, args.query_strategy))
 
     result_df.to_csv(export_path)
     input("Press any key to continue...")

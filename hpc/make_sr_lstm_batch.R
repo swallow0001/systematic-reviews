@@ -91,10 +91,11 @@ create_batch <- function(node, script, active_learning) {
       # construct command line to run a specific model/task
       #
         if (active_learning){
-          arg_line <- sprintf("-T %s -quota %s -dataset %s",
+          arg_line <- sprintf("-T %s --quota %s --dataset %s --query_strategy %s",
                               task_params$T[i],
                               task_params$quota[i],
-                              task_params$dataset[i])
+                              task_params$dataset[i],
+                              task_params$query_strategy[i])
           
           command  <- sprintf("python3 ./hpc/sr_lstm_active.py  %s &> /dev/null &", arg_line)
           
@@ -147,7 +148,8 @@ batch_dir_rel=file.path('.','batch_files',ifelse(active_learning,'active_learnin
 # Creates Join (CJ) with all the different parameter settings
 if (active_learning){
   task_params <- data.table::CJ(sample =        as.character(1:100),
-                                quota  =        as.character(30))
+                                quota  =        as.character(48),
+                                query_strategy = c('lc','random'))
   
 } else{
   task_params <- data.table::CJ(sample =               as.character(1:10),
