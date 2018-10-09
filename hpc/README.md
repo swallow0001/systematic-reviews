@@ -1,26 +1,72 @@
-# Supervised learning experiment on HPC
+# Analysis on ASR
+
+Description of the project
+
+## Active and Passive learning research
+
+Create a pickle file with the data, labels and embedding layer with the
+following shell command:  
+
+``` bash
+python hpc/data_prep.py --dataset=ptsd
+```
 
 
-## STEP X: prepare datasets
-## STEP 1: generate batch files
+### Passive learning
+``` 
+python hpc/sr_lstm.py --training_size=500
+```
+
+### Active learning 
+
+```
+python hpc/sr_lstm_active.py
+```
+
+
+
+## Run simulations on HPC
+
+
+### STEP 0: Setup configuration SurfSara
+
+This sections contains an experiment to run a supervised learning simulation
+on the SurfSara HPC infrastructure.
+
+
+``` bash
+module load eb
+module load R
+module load python/3.5.0-intel
+```
+
+Install dependencies:
+```bash 
+pip install --user git+https://github.com/J535D165/libact-lite
+```
+
+### STEP 1: generate batch files
 
 Generate the batch files for active learning, use the following command:
 
 ``` bash
-Rscript make_sr_lstm_batch.R [DATASET_NAME] --active
+Rscript hpc/make_sr_lstm_batch.R [DATASET_NAME] --active
 ```
 
 and for passive learning the following command:
 
 ``` bash
-Rscript make_sr_lstm_batch.R [DATASET_NAME] --no-active
+Rscript hpc/make_sr_lstm_batch.R [DATASET_NAME] --no-active
 ```
 
 Working example: 
 
 ``` bash
-Rscript make_sr_lstm_batch.R ptsd --active
+Rscript hpc/make_sr_lstm_batch.R ptsd --active
 ```
+
+
+### STEP 2: prepare datasets
 
 To speed up the computations on the HPC, several Python objects are generated
 beforehand and stored in a pickle file. This file makes it possible to load
@@ -33,19 +79,20 @@ following shell command:
 python hpc/data_prep.py --dataset=ptsd
 ```
 
+### STEP 3: start simulation
 
-## WIP
+Submit the jobs with: 
 
-This subfolder contains an experiment to run a supervised learning simulation
-on the SurfSara HPC infrastructure.
-
-Generate the batch files with the following line of command line code.
-```
-python batch_script_generation.py
+```bash
+source batch_files/active_learning_ptsd_submit_ptsd.sh
 ```
 
-A single run of the simulation is executed with the following line of code:
+Check the status of the job:
+
+```bash 
+checkjob [JOB_ID]
 ```
-python sr_lstm.py --training_size=500
-```
+
+
+
 
