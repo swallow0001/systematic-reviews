@@ -66,7 +66,7 @@ Rscript hpc/make_sr_lstm_batch.R ptsd --active
 ```
 
 
-### STEP 2: prepare datasets
+### STEP 2: prepare datasets [Locally]
 
 To speed up the computations on the HPC, several Python objects are generated
 beforehand and stored in a pickle file. This file makes it possible to load
@@ -78,6 +78,10 @@ following shell command:
 ``` bash
 python hpc/data_prep.py --dataset=ptsd
 ```
+
+Run the command locally, such that you do not have to upload the entire word 
+embedding (`wiki.vec`) to the HPC cluster. After running this, upload the pickle
+files to the cluster. 
 
 ### STEP 3: start simulation
 
