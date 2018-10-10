@@ -21,7 +21,7 @@ import json
 from datetime import datetime
 
 # project dependencies
-sys.path.insert(0, 'python')  # path to the module.
+sys.path.insert(0, os.path.join('src', 'python'))  # path to the module.
 
 from models.lstm import LSTM_Model
 from utils import split_data
