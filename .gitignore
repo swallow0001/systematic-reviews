@@ -14,7 +14,7 @@ data/pretrained_models/*
 !data/pretrained_models/.gitkeep
 data/pretrained_models/word2vec/*
 !data/pretrained_models/word2vec/.gitkeep
-
+data/datasets/depression_review
 .ipython/
 .jupyter/
 .local/

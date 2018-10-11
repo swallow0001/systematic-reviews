@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 sys.path.insert(0, os.path.join('..', 'python'))
 
 # project dependencies
-from config import DATA_DIR, PTSD_PATH, DRUG_DIR
+from config import DATA_DIR, PTSD_PATH, DRUG_DIR, DEPRESSION_PATH
 
 # Global variables
 # word2vec_filePath = os.path.join("word2vec", "wiki.en.vec")
@@ -70,6 +70,19 @@ def load_drug_data(name):
 
     return texts.values, labels.values
 
+def load_depression_data():
+    """Load adults_depression papers and their labels.
+
+    """
+
+    # read the data of the file location given as argument to this function
+    df = pd.read_csv(DEPRESSION_PATH)
+
+    # make texts and labels
+    texts = (df['title'].fillna('') + ' ' + df['abstracts'].fillna(''))
+    labels = df["label"]
+
+    return texts.values, labels.values
 
 def list_drug_datasets():
     """Get a list of all available drug datasets."""

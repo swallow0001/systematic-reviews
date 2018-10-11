@@ -39,6 +39,8 @@ if __name__ == '__main__':
     # load the dataset from disk
     if args.dataset == 'ptsd':
         texts, lbls = load_ptsd_data()
+    elif args.dataset == 'depression':
+        texts, lbls = load_depression_data()
     else:
         texts, lbls = load_drug_data(args.dataset)
 

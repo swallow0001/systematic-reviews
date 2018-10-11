@@ -26,6 +26,7 @@ DATA_DIR = os.path.join(ROOT_DIR, "data")
 DATASETS_DIR = os.path.join(DATA_DIR, "datasets")
 PTSD_DIR = os.path.join(DATASETS_DIR, "ptsd_review")
 DRUG_DIR = os.path.join(DATASETS_DIR, "drug_class_review")
+DEPRESSION_DIR = os.path.join(DATASETS_DIR, "depression_review")
 
 # glove dir
 GLOVE_DIR = os.path.join(DATA_DIR, "pretrained_models", "word2vec")
@@ -37,6 +38,7 @@ TEMP_DATA_DIR = os.path.join(ROOT_DIR, "data_tmp")
 
 # FILE LOCATIONS
 PTSD_PATH = os.path.join(PTSD_DIR, "schoot-lgmm-ptsd.csv")
+DEPRESSION_PATH = os.path.join(DEPRESSION_DIR, "adults_depression.csv")
 
 ACTIVE_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "active_learning")
 PASSIVE_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "passive")

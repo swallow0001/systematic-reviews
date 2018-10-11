@@ -31,26 +31,26 @@ from config import *
 parser = argparse.ArgumentParser(description='Systematic Review options')
 parser.add_argument("-T", default=1, type=int, help='Task number.')
 parser.add_argument(
-    "-training_size", default=50, type=int, help='Size of training dataset')
+    "--training_size", default=50, type=int, help='Size of training dataset')
 parser.add_argument(
-    "-allowed_FN",
+    "--allowed_FN",
     default=1,
     type=int,
     help='Number of allowed False Negative cases')
 parser.add_argument(
-    "-init_included_papers",
+    "--init_included_papers",
     default=10,
     type=int,
     help='Initial number of included papers')
 parser.add_argument(
-    "-dataset", default='ptsd', type=str, help='Name of dataset')
+    "--dataset", default='ptsd', type=str, help='Name of dataset')
 parser.add_argument(
-    "-dropout", default=0, type=float, help='dropout')
+    "--dropout", default=0, type=float, help='dropout')
 sr_args = parser.parse_args()
 print(sr_args)
 
 # Read dataset, labels and embedding layer from pickle file.
-pickle_fp = os.path.join(TEMP_DATA_DIR, args.dataset + '_pickle.pickle')
+pickle_fp = os.path.join(TEMP_DATA_DIR, sr_args.dataset + '_pickle.pickle')
 with open(pickle_fp, 'rb') as f:
     data, labels, embedding_layer = pickle.load(f)
 
