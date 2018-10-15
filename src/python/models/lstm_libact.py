@@ -132,13 +132,6 @@ class LSTM_Libact(ProbabilisticModel):
                 verbose=0)
 
         else:
-            # dataset = args[0]
-            #            
-            # x_train = [x[0] for x in dataset.data]    
-            # y_train = [x[1] for x in dataset.data]
-            # 
-            # x_train = np.array(x_train)
-            # y_train = np.array(y_train)
             x_train, y_train_ = dataset.format_sklearn()
             
             if y_train_.ndim==1:    

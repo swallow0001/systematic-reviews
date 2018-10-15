@@ -25,6 +25,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, recall_score
 
 # project dependencies
 sys.path.insert(0, os.path.join('src', 'python'))  # path to the module.
+# sys.path.insert(0, 'python')  # path to the m
 
 from models.lstm_libact import LSTM_Libact
 from query_strategies.uncertainty_sampling import UncertaintySampling
@@ -168,6 +169,7 @@ def main(args):
     # [1, 2, 3, 4, 5, 218, 260, 466, 532, 564]
     print('prelabeled_index', prelabeled_index)
     pool, pool_ideal = make_pool(data, labels, prelabeled=prelabeled_index)
+    # print([(idx, entry[0][0:5]) for idx, entry in enumerate(pool_ideal.data) if entry[1] == 1])
 
     # get the model
     if args.model.lower() == 'lstm':
@@ -182,9 +184,9 @@ def main(args):
     else:
         raise ValueError('Model not found.')
 
-    model = deep_model(**kwargs_model)
-    init_weights = model._model.get_weights()
-
+    # model = deep_model(**kwargs_model)
+    # init_weights = model._model.get_weights()
+    # print(init_weights)
 
     #     # query strategy
     #     # https://libact.readthedocs.io/en/latest/libact.query_strategies.html
@@ -206,7 +208,6 @@ def main(args):
 
     result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
     query_i = 0
-    ##Todo: add multiple papers to labeled dataset with size of batch_size
 
     while query_i <= args.quota:
 
@@ -214,6 +215,7 @@ def main(args):
         print("Asking sample from pool with Uncertainty Sampling")
         # unlabeled_entry = pool.get_unlabeled_entries()
 
+        model = deep_model(**kwargs_model)
         # train the model
         model.train(pool)
 
@@ -247,13 +249,17 @@ def main(args):
             # update the pool with the new label
             pool.update(id, lb)
 
+        lbld =[x[1] for x in pool.data if x[1] is not None ]
+        print(lbld)
+        print(len(lbld))
+
         # store result in dataframe
         c_name = str(query_i)
         result_df[c_name] = -1
         result_df.loc[idx, c_name] = pred[:, 1]
 
         # reset the weights
-        model._model.set_weights(init_weights)
+        #model._model.set_weights(init_weights)
 
         # update the query counter
         query_i += 1

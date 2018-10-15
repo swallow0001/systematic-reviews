@@ -124,6 +124,6 @@ class UncertaintySampling(QueryStrategy):
         elif self.method == 'entropy':
             score = np.sum(-dvalue * np.log(dvalue), axis=1)
 
-        ask_id = score.argsort()[-n:]
+        ask_ids = score.argsort()[-n:]
 
-        return list(ask_id) if n > 1 else ask_id[0]
+        return [unlabeled_entry_ids[id] for id in ask_ids] if n > 1 else unlabeled_entry_ids[ask_ids[0]]

@@ -66,8 +66,8 @@ create_batch <- function(node, script, active_learning) {
     writeLines("mkdir -p \"$TMPDIR\"/output", fbatch)
     writeLines("cp -r $PBS_O_WORKDIR/data \"$TMPDIR\"", fbatch)
     writeLines("cp -r $PBS_O_WORKDIR/hpc \"$TMPDIR\"", fbatch)
-    writeLines("cp -r $PBS_O_WORKDIR/python \"$TMPDIR\"", fbatch)
-    writeLines("cp -r $PBS_O_WORKDIR/data_temp \"$TMPDIR\"", fbatch)
+    writeLines("cp -r $PBS_O_WORKDIR/src \"$TMPDIR\"", fbatch)
+    writeLines("cp -r $PBS_O_WORKDIR/data_tmp \"$TMPDIR\"", fbatch)
     writeLines("cd \"$TMPDIR\"", fbatch)
   
   # Load the software to run the scripts

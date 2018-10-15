@@ -76,7 +76,7 @@ def load_depression_data():
     """
 
     # read the data of the file location given as argument to this function
-    df = pd.read_csv(DEPRESSION_PATH)
+    df = pd.read_csv(DEPRESSION_PATH, encoding= "latin-1")
 
     # make texts and labels
     texts = (df['title'].fillna('') + ' ' + df['abstracts'].fillna(''))
