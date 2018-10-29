@@ -168,7 +168,7 @@ def main(args):
     result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
     query_i = 0
 
-    while query_i < args.quota:
+    while query_i <= args.quota:
 
         # make a query from the pool
         print("Asking sample from pool (qs %s)" % args.query_strategy)
