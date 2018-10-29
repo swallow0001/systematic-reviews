@@ -113,27 +113,33 @@ class LSTM_Libact(ProbabilisticModel):
             y_val = np.array(args[3])
     
             if y_train.ndim==1:    
-                y_train = to_categorical(np.asarray(y_train))
+                y_train = to_categorical(np.asarray(y_train),num_classes=2)
+                print('ndim==1')
 
             if y_val.ndim==1:    
-                y_val = to_categorical(np.asarray(y_val ))
+                y_val = to_categorical(np.asarray(y_val),num_classes=2)
             
-    
+            print('y_train.shape',y_train.shape)
             # weights = [1 / y_train[:, 0].mean(), 1 / y_train[:, 1].mean()]
+            
+            
             weights = {0: 1 / y_train[:, 0].mean(), 1: 1 / y_train[:, 1].mean()}
             self._model.fit(
                 x_train,
                 y_train,
                 batch_size=self.batch_size,
                 epochs=self.epoch_no,
+                #to test
                 validation_data=(x_val, y_val),
+                #to test
                 shuffle=True,
                 class_weight=weights,
                 verbose=0)
+            # self._model.train_on_batch(x_train,y_train,class_weight=weights)
 
         else:
             x_train, y_train_ = dataset.format_sklearn()
-            
+
             if y_train_.ndim==1:    
                 y_train = to_categorical(np.asarray(y_train_))
             else:
@@ -150,6 +156,7 @@ class LSTM_Libact(ProbabilisticModel):
                 shuffle=True,
                 class_weight=weights,
                 verbose=0)
+            # self._model.train_on_batch(x_train,y_train,class_weight=weights)
     def _get_threshholds(self, pred):
         desc = stats.describe(pred[:, 1])
         (min_prob, max_prob) = desc.minmax

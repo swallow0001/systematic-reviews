@@ -19,6 +19,8 @@ import sys
 
 import numpy as np
 import pandas as pd
+
+import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, recall_score
@@ -163,7 +165,7 @@ def main(args):
         data, labels, embedding_layer = pickle.load(f)
 
     # label the first batch (the initial labels)
-    seed = 2018 * args.T
+    seed = 2017 + args.T
     prelabeled_index = select_prelabeled(labels, args.init_included_papers,
                                          seed)
     # [1, 2, 3, 4, 5, 218, 260, 466, 532, 564]
@@ -184,9 +186,13 @@ def main(args):
     else:
         raise ValueError('Model not found.')
 
-    # model = deep_model(**kwargs_model)
-    # init_weights = model._model.get_weights()
-    # print(init_weights)
+    np.random.seed(seed)
+    tf.set_random_seed(seed)
+
+    model = deep_model(**kwargs_model)
+    #init_weights = model._model.get_weights()
+    # print('init_weights.shape',len(init_weights))
+    # print('init_weights[0]',init_weights[0])
 
     #     # query strategy
     #     # https://libact.readthedocs.io/en/latest/libact.query_strategies.html
@@ -215,7 +221,12 @@ def main(args):
         print("Asking sample from pool with Uncertainty Sampling")
         # unlabeled_entry = pool.get_unlabeled_entries()
 
-        model = deep_model(**kwargs_model)
+        np.random.seed(seed)
+        tf.set_random_seed(seed)
+        # model = deep_model(**kwargs_model)
+
+        # model._model.set_weights(init_weights)
+
         # train the model
         model.train(pool)
 
@@ -224,6 +235,16 @@ def main(args):
         idx = [x[0] for x in idx_features]
         features = [x[1] for x in idx_features]
         pred = model.predict(features)
+
+        print('len(idx)',len(idx))
+        print('idx[0]',idx[0])
+        print('pred[idx[0],1]',pred[idx[0],1])
+
+         # store result in dataframe
+        c_name = str(query_i)
+        result_df[c_name] = -1
+        result_df.loc[idx, c_name] = pred[:, 1]
+
 
         # make query
         if (args.query_strategy =='lc'):
@@ -250,17 +271,22 @@ def main(args):
             pool.update(id, lb)
 
         lbld =[x[1] for x in pool.data if x[1] is not None ]
-        print(lbld)
         print(len(lbld))
 
-        # store result in dataframe
-        c_name = str(query_i)
-        result_df[c_name] = -1
-        result_df.loc[idx, c_name] = pred[:, 1]
 
+        # # store result in dataframe
+        # c_name = str(query_i)
+        # result_df[c_name] = -1
+        # result_df.loc[idx, c_name] = pred[:, 1]
+
+        # weights = model._model.get_weights()        
+        # 
+        # print('shape of weights',len(weights))
+        # print('weights[0]',weights[0])
         # reset the weights
-        #model._model.set_weights(init_weights)
+        # model._model.set_weights(init_weights)
 
+        
         # update the query counter
         query_i += 1
 

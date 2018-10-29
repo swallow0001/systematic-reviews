@@ -116,18 +116,25 @@ def split_data(data, labels, train_size, init_positives, seed):
     if train_size >= len(data):
         print('invalid train size')
         return
-
+     
+    print('shape(data)',data.shape) 
+    print('shape(labels)',labels.shape)
+      
+    index_all= [i for i,j in enumerate(data)]
+    data =np.c_[data,index_all]
+    
     # select init_positive cases from the entire dataset
     if init_positives > 0:
         ##index of all included papers in the entire dataset
         positive_indx = np.where(labels[:, 1] == 1)[0]
 
         np.random.seed(seed)
+        #to test
         to_add_indx = np.random.choice(positive_indx, init_positives, replace=False)
-
+        
         y_train_init = labels[to_add_indx]
         x_train_init = data[to_add_indx]
-
+    
         data = np.delete(data, to_add_indx, 0)
         labels = np.delete(labels, to_add_indx, 0)
 
@@ -145,6 +152,9 @@ def split_data(data, labels, train_size, init_positives, seed):
     x_train = np.vstack((x_train, x_train_init))
     y_train = np.vstack((y_train, y_train_init))
 
+    print("x_train[:,1000]",x_train[:,1000])
+    x_train = np.delete(x_train,1000,1)
+    x_val = np.delete(x_val,1000,1)
     return (x_train, x_val, y_train, y_val)
 
 
