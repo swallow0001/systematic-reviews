@@ -17,27 +17,19 @@ library(data.table, warn.conflicts = FALSE)
 
 args = commandArgs(trailingOnly = TRUE)
 
-if (length(args) != 2){
-  stop("Arguments are missing")
+if (length(args) != 1){
+  stop("Arguments are not as expected")
 }else{
   dataset = args[1]
-  if (args[2] == "--active"){
-    active_learning = TRUE
-  } else {
-    active_learning = FALSE
-  }
-  
 }
 
 # create_batch: create a shell script for running M models on one node ----
-
-# active_learning = TRUE
 
 # list of available dataset
 # By commenting in/out user have to indicate which dataset must be used
 # Should be an argument on the command line of this script (to-do)
 #
-# dataset <- "ptsd"
+#dataset <- "ptsd"
 #dataset <- "AtypicalAntipsychotics"
 #dataset <- "ACEInhibitors"
 #dataset <- "Opiods"
@@ -47,7 +39,7 @@ if (length(args) != 2){
 #dataset <- "CalciumChannelBlockers"
 
 
-create_batch <- function(node, script, active_learning) {
+create_batch <- function(node, script) {
     
   # PBS commands to instruct the scheduler about the required resources
   #
@@ -68,6 +60,7 @@ create_batch <- function(node, script, active_learning) {
     writeLines("cp -r $PBS_O_WORKDIR/hpc \"$TMPDIR\"", fbatch)
     writeLines("cp -r $PBS_O_WORKDIR/src \"$TMPDIR\"", fbatch)
     writeLines("cp -r $PBS_O_WORKDIR/data_tmp \"$TMPDIR\"", fbatch)
+    writeLines("cp -r $PBS_O_WORKDIR/debug \"$TMPDIR\"", fbatch)
     writeLines("cd \"$TMPDIR\"", fbatch)
   
   # Load the software to run the scripts
@@ -87,37 +80,22 @@ create_batch <- function(node, script, active_learning) {
     for (i in start_batch:end_batch) {
 	      if (i > n_task ) break                # Last batch can contain less than M tasks
       
-      # construct command line to run a specific model/task
-      #
-        if (active_learning){
-          arg_line <- sprintf("-T %s --quota %s --dataset %s --query_strategy %s",
-                              task_params$T[i],
-                              task_params$quota[i],
-                              task_params$dataset[i],
-                              task_params$query_strategy[i])
-          
-          command  <- sprintf("python3 ./hpc/sr_lstm_active.py  %s &> /dev/null &", arg_line)
-          
-        }
-        else{
-          arg_line <- sprintf("-T %s -training_size %s -allowed_FN %s -init_included_papers %s -dropout %s -dataset %s",
-                              task_params$T[i],
-                              task_params$training_size[i],
-                              task_params$allowed_FN[i],
-                              task_params$init_included_papers[i],
-                              task_params$dropout[i],
-                              task_params$dataset[i])
-          
-          command  <- sprintf("python3 ./hpc/sr_lstm.py  %s &> /dev/null &", arg_line)
-          
-        }
-                
+        # construct command line to run a specific model/task
+      
+        arg_line <- sprintf("-T %s --quota %s --dataset %s --query_strategy %s --init_included_papers %s",
+                            task_params$T[i],
+                            task_params$quota[i],
+                            task_params$dataset[i],
+                            task_params$query_strategy[i],
+                            task_params$init_included_papers[i])
+        
+        command  <- sprintf("python3 ./hpc/sr_lstm_active.py  %s &> /dev/null &", arg_line)
         
         writeLines(command, fbatch)
 	      writeLines("sleep 1", fbatch)                          # to prevent processes to access resources at the same time
 	    
-	    # to allow only `proces_per_node` processes in parallel check wether we have to wait
-	    #
+	      # to allow only `proces_per_node` processes in parallel check wether we have to wait
+	    
         if (((i - start_batch + 1) %% proces_per_node) == 0) {
           writeLines("wait", fbatch)
         }
@@ -138,29 +116,18 @@ create_batch <- function(node, script, active_learning) {
 
 basename <- dataset
 
-batch_dir = file.path(getwd(),'batch_files',ifelse(active_learning,'active_learning','passive'),dataset)
+batch_dir = file.path(getwd(),'batch_files','active_learning',dataset)
 if (!dir.exists(batch_dir))
   dir.create(batch_dir, recursive = TRUE)
 
-batch_dir_rel=file.path('.','batch_files',ifelse(active_learning,'active_learning','passive'),dataset)
+batch_dir_rel=file.path('.','batch_files','active_learning',dataset)
 
 # Creates Join (CJ) with all the different parameter settings
-if (active_learning){
-  task_params <- data.table::CJ(sample =        as.character(1:100),
-                                quota  =        as.character(48),
-                                query_strategy = c('lc','random'))
-  
-} else{
-  task_params <- data.table::CJ(sample =               as.character(1:10),
-                                training_size =        as.character(seq(50, 500, 50)),
-                                allowed_FN =           as.character(0:9),
-                                dropout = 	            c("0", "0.2", "0.4"),
-                                init_included_papers = c("10", "15", "20"))
-  
-  task_params <- task_params %>% filter((allowed_FN < 2) | (init_included_papers == 10))
-  
-} 
 
+task_params <- data.table::CJ(sample =        as.character(1:45),
+                              quota  =        as.character(1),
+                              init_included_papers =as.character(15),
+                              query_strategy = c('random'))
 
 # Each task/model gets a number which will be used in the file name of the output of the model
 
@@ -168,25 +135,15 @@ task_params <- task_params %>% mutate(dataset =  dataset) %>%
                                mutate(T = 0:(nrow(task_params)-1)) %>%
                                select(-sample)
 
-    # Save the parameter setting of each task
-    #
+# Save the parameter setting of each task
 task_params_file <- file.path(batch_dir, sprintf("%s_params.csv", dataset))
 write.csv(x = task_params, file = task_params_file)
 
-    # Calculate the number of nodes
-    #
-
+# Calculate the number of nodes
 proces_per_node   <- 15                             # number of parallel processes on a node a.k.a. chunk
-if (active_learning) {
-  task_per_node     <- 15
-  minutes_per_task  <- 400  # see XXX for how to determine this value (to do)
-  
-}else{
-  task_per_node     <- 105
-  minutes_per_task  <- 45  # see XXX for how to determine this value (to do)
-  
-}
 
+task_per_node     <- 15
+minutes_per_task  <- 400  # see XXX for how to determine this value (to do)
 
 n_task            <- nrow(task_params)
 n_nodes           <- ceiling(n_task/task_per_node)  # number of nodes
@@ -198,8 +155,7 @@ hours_wall        <- minutes_per_job %/% 60
 minutes_wall      <- minutes_per_job %% 60
 wall_time         <- sprintf("%02d:%02d:00", hours_wall, minutes_wall)
 
-    # Create submission script (2)
-    #
+# Create submission script (2)
 submit_script <- file.path(batch_dir, sprintf("submit_%s.sh", basename))
 fsubmit       <- file(submit_script, open= "w")
 writeLines("#!/bin/bash", fsubmit)
@@ -209,7 +165,7 @@ for (i in 1:n_nodes) {
       # Create a batch script for each node
       #
     batch_script <- file.path(batch_dir, sprintf("%s_%d.sh", basename, i))
-    create_batch(node = i, script = batch_script, active_learning)
+    create_batch(node = i, script = batch_script)
     
     qsub <- sprintf("qsub %s/%s_%d.sh", batch_dir_rel,basename, i)   # submission command for this batch
     writeLines(qsub, fsubmit)
